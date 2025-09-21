@@ -202,7 +202,7 @@ const JoinClients = () => {
     { name: 'Jeddah Summer', logo: MaxresLogo, arabic: 'صيف جدة' },
     // New client logos
     { name: 'Client Partner', logo: NewClient1 },
-    { name: 'EWC', logo: '/src/assets/clients/ewc_logo_7b63df7166.png' },
+    { name: 'EWC', logo: EwcLogo },
     { name: 'Logo Header', logo: LogoHeader },
     { name: 'Logo 1', logo: Logo1 },
     { name: 'Riyadh Season', logo: RiyadhSeasonLogo, arabic: 'موسم الرياض' }
