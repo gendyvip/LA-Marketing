@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage Images -->
+  <url>
+    <loc>https://www.lamarketingae.com/</loc>
+    <image:image>
+      <image:loc>https://www.lamarketingae.com/src/assets/logo.png</image:loc>
+      <image:title>LA Marketing Logo</image:title>
+      <image:caption>LA Marketing - Digital Marketing Agency UAE Logo</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.lamarketingae.com/src/assets/backgrounds/Backgrounds-01.png</image:loc>
+      <image:title>LA Marketing Hero Background</image:title>
+      <image:caption>Professional digital marketing services background</image:caption>
+    </image:image>
+  </url>
+
+  <!-- About Page Images -->
+  <url>
+    <loc>https://www.lamarketingae.com/about</loc>
+    <image:image>
+      <image:loc>https://www.lamarketingae.com/src/assets/logo.png</image:loc>
+      <image:title>LA Marketing About Page</image:title>
+      <image:caption>About LA Marketing - Digital Marketing Agency</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Influencers Page Images -->
+  <url>
+    <loc>https://www.lamarketingae.com/influencers</loc>
+    <image:image>
+      <image:loc>https://www.lamarketingae.com/src/assets/logo.png</image:loc>
+      <image:title>LA Marketing Influencers Network</image:title>
+      <image:caption>Connect with top influencers across MENA region</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Contact Page Images -->
+  <url>
+    <loc>https://www.lamarketingae.com/contact</loc>
+    <image:image>
+      <image:loc>https://www.lamarketingae.com/src/assets/logo.png</image:loc>
+      <image:title>Contact LA Marketing</image:title>
+      <image:caption>Get in touch with our digital marketing experts</image:caption>
+    </image:image>
+  </url>
+
+</urlset>

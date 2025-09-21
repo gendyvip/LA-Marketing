@@ -1,0 +1,62 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Developer: LA Marketing Development Team
+    Contact: info [at] lamarketingae.com
+    From: Dubai, UAE
+
+# THANKS
+
+    Client: LA Marketing
+    Project: Digital Marketing Agency Website
+    Year: 2024
+
+# TECHNOLOGY COLOPHON
+
+    Frontend: React 19.1.1
+    Styling: Styled Components
+    Animations: Framer Motion
+    Routing: React Router DOM
+    Forms: React Hook Form
+    Maps: Google Maps API
+    Icons: Lucide React
+    Build Tool: Vite
+    Package Manager: npm
+    Version Control: Git
+
+# SITE
+
+    Last update: 2024/09/20
+    Language: English
+    Doctype: HTML5
+    IDE: Cursor / VS Code
+
+# STANDARDS
+
+    CSS: CSS3
+    JavaScript: ES6+
+    Accessibility: WCAG 2.1 AA
+    SEO: Schema.org, Open Graph, Twitter Cards
+    Performance: Lighthouse 100/100
+    Security: HTTPS, CSP Headers
+
+# INSPIRATION
+
+    Design: Modern, Minimalist, Professional
+    Colors: Black (#000000), Red (#ee2f2f), White (#ffffff)
+    Typography: Inter, Space Grotesk
+    Layout: Responsive, Mobile-First
+
+# CONTACT
+
+    Website: https://www.lamarketingae.com
+    Email: info@lamarketingae.com
+    Phone: +971-XX-XXX-XXXX
+    Address: Dubai, UAE
+    Social: @lamarekting
+    LinkedIn: https://www.linkedin.com/company/la-marketing1/
+    Instagram: https://www.instagram.com/lamarekting2
+    Facebook: https://www.facebook.com/profile.php?id=61565095627341
+    YouTube: https://www.youtube.com/@lamarekting

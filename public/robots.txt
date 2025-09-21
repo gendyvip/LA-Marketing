@@ -1,0 +1,63 @@
+# Robots.txt for LA Marketing - Digital Marketing Agency UAE
+# https://www.lamarketingae.com
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow sensitive areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /*.log$
+Disallow: /src/
+Disallow: /public/
+
+# Allow 404 page
+Allow: /404
+
+# Specific search engine directives
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap locations
+Sitemap: https://www.lamarketingae.com/sitemap.xml
+Sitemap: https://www.lamarketingae.com/sitemap-index.xml
+Sitemap: https://www.lamarketingae.com/sitemap-images.xml
+
+# Host directive (preferred domain)
+Host: https://www.lamarketingae.com

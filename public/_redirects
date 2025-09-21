@@ -1,0 +1,8 @@
+# SPA routing fallback
+/*    /index.html   200
+
+# API routes (if any)
+/api/*  /api/:splat  200
+
+# Static assets with caching
+/static/*  /static/:splat  200

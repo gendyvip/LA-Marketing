@@ -1,0 +1,90 @@
+{
+    "name": "LA Marketing - Digital Marketing Agency UAE",
+    "short_name": "LA Marketing",
+    "description": "Leading digital marketing agency in Dubai, UAE. Specializing in influencer marketing, social media management, brand development, and digital transformation.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#ee2f2f",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en-US",
+    "dir": "ltr",
+    "categories": [
+        "business",
+        "marketing",
+        "advertising"
+    ],
+    "icons": [
+        {
+            "src": "/default-favicon.ico",
+            "sizes": "16x16 32x32 48x48",
+            "type": "image/x-icon",
+            "purpose": "any"
+        },
+        {
+            "src": "/src/assets/logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/src/assets/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/src/assets/backgrounds/Backgrounds-01.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "LA Marketing Homepage"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "About Us",
+            "short_name": "About",
+            "description": "Learn about LA Marketing's mission and values",
+            "url": "/about",
+            "icons": [
+                {
+                    "src": "/src/assets/logo.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Influencers",
+            "short_name": "Influencers",
+            "description": "Connect with our influencer network",
+            "url": "/influencers",
+            "icons": [
+                {
+                    "src": "/src/assets/logo.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Contact",
+            "short_name": "Contact",
+            "description": "Get in touch with our team",
+            "url": "/contact",
+            "icons": [
+                {
+                    "src": "/src/assets/logo.png",
+                    "sizes": "96x96",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

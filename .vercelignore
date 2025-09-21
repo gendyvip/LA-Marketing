@@ -1,0 +1,30 @@
+# Development files
+node_modules/
+.git/
+.gitignore
+README.md
+DEPLOYMENT.md
+*.log
+.DS_Store
+Thumbs.db
+
+# Development configuration
+.env.local
+.env.development
+.vscode/
+.idea/
+
+# Build artifacts (Vercel handles this)
+dist/
+build/
+
+# Test files
+__tests__/
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+
+# Documentation
+docs/
+*.md

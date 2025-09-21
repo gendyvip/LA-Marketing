@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Main Sitemap -->
+  <sitemap>
+    <loc>https://www.lamarketingae.com/sitemap.xml</loc>
+    <lastmod>2024-09-20T00:00:00+00:00</lastmod>
+  </sitemap>
+  
+  <!-- Images Sitemap (if you have many images) -->
+  <sitemap>
+    <loc>https://www.lamarketingae.com/sitemap-images.xml</loc>
+    <lastmod>2024-09-20T00:00:00+00:00</lastmod>
+  </sitemap>
+  
+  <!-- News Sitemap (if you have a blog/news section) -->
+  <!--
+  <sitemap>
+    <loc>https://www.lamarketingae.com/sitemap-news.xml</loc>
+    <lastmod>2024-09-20T00:00:00+00:00</lastmod>
+  </sitemap>
+  -->
+  
+</sitemapindex>

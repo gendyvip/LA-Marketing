@@ -1,0 +1,32 @@
+Contact: security@lamarketingae.com
+Contact: https://www.lamarketingae.com/contact
+Expires: 2025-09-20T23:59:59.000Z
+Encryption: https://www.lamarketingae.com/pgp-key.txt
+Acknowledgments: https://www.lamarketingae.com/security-acknowledgments
+Preferred-Languages: en, ar
+Canonical: https://www.lamarketingae.com/.well-known/security.txt
+Policy: https://www.lamarketingae.com/security-policy
+
+# Security Policy
+# We take security seriously at LA Marketing.
+# If you discover a security vulnerability, please report it responsibly.
+
+# Scope
+# This security policy applies to:
+# - https://www.lamarketingae.com
+# - All subdomains of lamarketingae.com
+# - Our web applications and services
+
+# Out of Scope
+# - Third-party services and integrations
+# - Social media accounts
+# - Email services (unless directly related to our domain)
+
+# Reporting
+# Please report security vulnerabilities to security@lamarketingae.com
+# Include as much detail as possible about the vulnerability
+# We will respond within 24-48 hours
+
+# Recognition
+# We appreciate responsible disclosure and will acknowledge
+# security researchers who help us improve our security posture
