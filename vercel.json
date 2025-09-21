@@ -50,11 +50,6 @@
             ]
         }
     ],
-    "functions": {
-        "app/api/**/*.js": {
-            "runtime": "nodejs18.x"
-        }
-    },
     "buildCommand": "npm run build:prod",
     "outputDirectory": "dist",
     "installCommand": "npm install",

@@ -12,7 +12,8 @@
     "deploy:manifest": "node scripts/deploy-manifest.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "npm run build:vercel"
+    "vercel-build": "npm run build:vercel",
+    "install:legacy": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
