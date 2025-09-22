@@ -456,6 +456,7 @@ const Influencers = memo(() => {
   const [isIOS, setIsIOS] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [swiperError, setSwiperError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -465,9 +466,36 @@ const Influencers = memo(() => {
   React.useEffect(() => {
     const isIOSDevice =
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isMobileDevice = window.innerWidth <= 768;
+    const isMobileDevice =
+      window.innerWidth <= 768 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
     setIsIOS(isIOSDevice);
     setIsMobile(isMobileDevice);
+
+    // Add mobile-specific optimizations for Vercel
+    if (isMobileDevice) {
+      // Disable hover effects on mobile
+      document.body.style.touchAction = "manipulation";
+      // Prevent zoom on double tap
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          if (e.touches.length > 1) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+    }
+
+    // Set loading to false after component mounts
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Reset swiper error when filters change
@@ -574,6 +602,30 @@ const Influencers = memo(() => {
       },
     },
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <SEO {...seoData.influencers} />
+        <InfluencersContainer>
+          <ContentSection>
+            <Container>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "4rem 0",
+                  color: "#ffffff",
+                  fontSize: "1.2rem",
+                }}
+              >
+                Loading influencers...
+              </div>
+            </Container>
+          </ContentSection>
+        </InfluencersContainer>
+      </>
+    );
+  }
 
   return (
     <>
