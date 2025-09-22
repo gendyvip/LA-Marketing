@@ -482,12 +482,21 @@ const Influencers = memo(() => {
       setSwiperError(true);
     };
 
+    const handleUnhandledRejection = (event) => {
+      console.error("Unhandled promise rejection:", event.reason);
+      setSwiperError(true);
+      event.preventDefault();
+    };
+
     window.addEventListener("error", handleError);
-    window.addEventListener("unhandledrejection", handleError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleError);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection
+      );
     };
   }, []);
 
@@ -699,11 +708,18 @@ const Influencers = memo(() => {
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        if (igUrl !== "#") {
-                                          window.open(
-                                            igUrl,
-                                            "_blank",
-                                            "noopener,noreferrer"
+                                        try {
+                                          if (igUrl !== "#") {
+                                            window.open(
+                                              igUrl,
+                                              "_blank",
+                                              "noopener,noreferrer"
+                                            );
+                                          }
+                                        } catch (error) {
+                                          console.error(
+                                            "Error opening Instagram:",
+                                            error
                                           );
                                         }
                                       }}
@@ -717,11 +733,18 @@ const Influencers = memo(() => {
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        if (ttUrl !== "#") {
-                                          window.open(
-                                            ttUrl,
-                                            "_blank",
-                                            "noopener,noreferrer"
+                                        try {
+                                          if (ttUrl !== "#") {
+                                            window.open(
+                                              ttUrl,
+                                              "_blank",
+                                              "noopener,noreferrer"
+                                            );
+                                          }
+                                        } catch (error) {
+                                          console.error(
+                                            "Error opening TikTok:",
+                                            error
                                           );
                                         }
                                       }}
@@ -742,65 +765,35 @@ const Influencers = memo(() => {
                         try {
                           return (
                             <Swiper
-                              modules={
-                                isMobile ? [Autoplay] : [Navigation, Autoplay]
-                              }
-                              spaceBetween={isMobile ? 20 : 40}
-                              slidesPerView={isMobile ? 1 : 3}
-                              navigation={!isMobile}
+                              modules={[Navigation]}
+                              spaceBetween={20}
+                              slidesPerView={1}
+                              navigation={true}
                               pagination={false}
-                              autoplay={
-                                isIOS || isMobile
-                                  ? false
-                                  : {
-                                      delay: 5000,
-                                      disableOnInteraction: false,
-                                      pauseOnMouseEnter: true,
-                                      stopOnLastSlide: false,
-                                    }
-                              }
+                              autoplay={false}
                               touchRatio={1}
-                              touchAngle={45}
                               simulateTouch={true}
                               allowTouchMove={true}
-                              grabCursor={!isMobile}
-                              watchSlidesProgress={false}
-                              preventInteractionOnTransition={false}
                               breakpoints={{
                                 320: {
                                   slidesPerView: 1,
                                   spaceBetween: 20,
-                                  centeredSlides: true,
-                                  touchRatio: 1,
                                 },
                                 768: {
                                   slidesPerView: 2,
                                   spaceBetween: 30,
-                                  centeredSlides: false,
-                                  touchRatio: 1,
                                 },
                                 1024: {
                                   slidesPerView: 3,
                                   spaceBetween: 40,
-                                  centeredSlides: false,
-                                  touchRatio: 1,
                                 },
                               }}
-                              loop={
-                                filteredInfluencers.length > (isMobile ? 1 : 3)
-                              }
-                              onError={(swiper) => {
-                                console.error("Swiper error:", swiper);
+                              loop={false}
+                              onError={() => {
                                 setSwiperError(true);
                               }}
-                              onInit={(swiper) => {
+                              onInit={() => {
                                 setSwiperError(false);
-                              }}
-                              onTouchStart={(swiper) => {
-                                // Disable autoplay on touch
-                                if (swiper && swiper.autoplay) {
-                                  swiper.autoplay.stop();
-                                }
                               }}
                             >
                               {filteredInfluencers.map((client) => (
@@ -860,11 +853,18 @@ const Influencers = memo(() => {
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   e.stopPropagation();
-                                                  if (igUrl !== "#") {
-                                                    window.open(
-                                                      igUrl,
-                                                      "_blank",
-                                                      "noopener,noreferrer"
+                                                  try {
+                                                    if (igUrl !== "#") {
+                                                      window.open(
+                                                        igUrl,
+                                                        "_blank",
+                                                        "noopener,noreferrer"
+                                                      );
+                                                    }
+                                                  } catch (error) {
+                                                    console.error(
+                                                      "Error opening Instagram:",
+                                                      error
                                                     );
                                                   }
                                                 }}
@@ -878,11 +878,18 @@ const Influencers = memo(() => {
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   e.stopPropagation();
-                                                  if (ttUrl !== "#") {
-                                                    window.open(
-                                                      ttUrl,
-                                                      "_blank",
-                                                      "noopener,noreferrer"
+                                                  try {
+                                                    if (ttUrl !== "#") {
+                                                      window.open(
+                                                        ttUrl,
+                                                        "_blank",
+                                                        "noopener,noreferrer"
+                                                      );
+                                                    }
+                                                  } catch (error) {
+                                                    console.error(
+                                                      "Error opening TikTok:",
+                                                      error
                                                     );
                                                   }
                                                 }}
@@ -967,11 +974,18 @@ const Influencers = memo(() => {
                                               onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                if (igUrl !== "#") {
-                                                  window.open(
-                                                    igUrl,
-                                                    "_blank",
-                                                    "noopener,noreferrer"
+                                                try {
+                                                  if (igUrl !== "#") {
+                                                    window.open(
+                                                      igUrl,
+                                                      "_blank",
+                                                      "noopener,noreferrer"
+                                                    );
+                                                  }
+                                                } catch (error) {
+                                                  console.error(
+                                                    "Error opening Instagram:",
+                                                    error
                                                   );
                                                 }
                                               }}
@@ -985,11 +999,18 @@ const Influencers = memo(() => {
                                               onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                if (ttUrl !== "#") {
-                                                  window.open(
-                                                    ttUrl,
-                                                    "_blank",
-                                                    "noopener,noreferrer"
+                                                try {
+                                                  if (ttUrl !== "#") {
+                                                    window.open(
+                                                      ttUrl,
+                                                      "_blank",
+                                                      "noopener,noreferrer"
+                                                    );
+                                                  }
+                                                } catch (error) {
+                                                  console.error(
+                                                    "Error opening TikTok:",
+                                                    error
                                                   );
                                                 }
                                               }}
