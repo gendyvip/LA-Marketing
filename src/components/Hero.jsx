@@ -480,7 +480,7 @@ const ScrollDownButton = styled(motion.button)`
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 100;
 
   &:hover {
     background: #ee2f2f;
@@ -510,22 +510,42 @@ const ScrollDownButton = styled(motion.button)`
     height: 45px;
     animation: none;
     will-change: auto;
+    z-index: 100;
   }
 
   @media (max-width: 480px) {
-    bottom: 2rem;
+    bottom: 4rem;
     width: 40px;
     height: 40px;
     animation: none;
     will-change: auto;
+    z-index: 100;
   }
 
   @media (max-width: 360px) {
-    bottom: 1.5rem;
+    bottom: 3rem;
     width: 35px;
     height: 35px;
     animation: none;
     will-change: auto;
+    z-index: 100;
+  }
+
+  /* iPhone specific viewport heights */
+  @media (max-height: 932px) and (max-width: 480px) {
+    bottom: 10rem;
+  }
+
+  @media (max-height: 667px) and (max-width: 480px) {
+    bottom: 4rem;
+  }
+
+  @media (max-height: 568px) and (max-width: 480px) {
+    bottom: 3rem;
+  }
+
+  @media (max-height: 480px) and (max-width: 480px) {
+    bottom: 2rem;
   }
 `;
 
