@@ -448,7 +448,7 @@ const HeroButton = styled(motion.button)`
 
 const ScrollDownButton = styled(motion.button)`
   position: absolute;
-  bottom: 4rem;
+  bottom: 10rem;
   left: 50%;
   transform: translateX(-50%);
   background: transparent;
@@ -486,7 +486,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 768px) {
-    bottom: 6rem;
+    bottom: 10rem;
     left: 45%;
     width: 45px;
     height: 45px;
@@ -495,7 +495,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 480px) {
-    bottom: 0.5rem;
+    bottom: 10rem;
     width: 40px;
     height: 40px;
     animation: none;
@@ -503,7 +503,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 360px) {
-    bottom: 0.25rem;
+    bottom: 10rem;
     width: 35px;
     height: 35px;
     animation: none;
