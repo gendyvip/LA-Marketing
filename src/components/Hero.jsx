@@ -25,22 +25,32 @@ const HeroContainer = styled.section`
     bottom: 0;
     left: 0;
     right: 0;
-    height: 1px;
+    height: 2px;
     background: linear-gradient(
       90deg,
       transparent 0%,
       #ee2f2f 50%,
       transparent 100%
     );
-    z-index: 1;
+    z-index: 10;
     animation: none;
     will-change: auto;
+    display: block;
+    visibility: visible;
+    opacity: 1;
   }
 
   @media (max-width: 1200px) {
     background: #000000;
     animation: none;
     will-change: auto;
+
+    &::after {
+      display: block;
+      visibility: visible;
+      opacity: 1;
+      z-index: 10;
+    }
   }
 
   @media (max-width: 768px) {
@@ -48,12 +58,20 @@ const HeroContainer = styled.section`
     padding-top: 8rem;
     animation: none;
     will-change: auto;
+
+    &::after {
+      display: none;
+    }
   }
 
   @media (max-width: 480px) {
     padding-top: 6rem;
     animation: none;
     will-change: auto;
+
+    &::after {
+      display: none;
+    }
   }
 `;
 
@@ -448,7 +466,7 @@ const HeroButton = styled(motion.button)`
 
 const ScrollDownButton = styled(motion.button)`
   position: absolute;
-  bottom: 10rem;
+  bottom: 4rem;
   left: 50%;
   transform: translateX(-50%);
   background: transparent;
@@ -486,7 +504,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 768px) {
-    bottom: 10rem;
+    bottom: 8rem;
     left: 45%;
     width: 45px;
     height: 45px;
@@ -495,7 +513,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 480px) {
-    bottom: 10rem;
+    bottom: 2rem;
     width: 40px;
     height: 40px;
     animation: none;
@@ -503,7 +521,7 @@ const ScrollDownButton = styled(motion.button)`
   }
 
   @media (max-width: 360px) {
-    bottom: 10rem;
+    bottom: 1.5rem;
     width: 35px;
     height: 35px;
     animation: none;
