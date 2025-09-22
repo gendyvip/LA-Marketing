@@ -454,23 +454,42 @@ const Influencers = memo(() => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isIOS, setIsIOS] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [swiperError, setSwiperError] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // Detect iOS
+  // Detect iOS and mobile
   React.useEffect(() => {
     const isIOSDevice =
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isMobileDevice = window.innerWidth <= 768;
     setIsIOS(isIOSDevice);
+    setIsMobile(isMobileDevice);
   }, []);
 
   // Reset swiper error when filters change
   React.useEffect(() => {
     setSwiperError(false);
   }, [activeFilter, searchQuery]);
+
+  // Add error boundary for mobile
+  React.useEffect(() => {
+    const handleError = (error) => {
+      console.error("Mobile error caught:", error);
+      setSwiperError(true);
+    };
+
+    window.addEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", handleError);
+
+    return () => {
+      window.removeEventListener("error", handleError);
+      window.removeEventListener("unhandledrejection", handleError);
+    };
+  }, []);
 
   const { items, filters } = useInfluencerCatalog();
 
@@ -530,18 +549,18 @@ const Influencers = memo(() => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: isMobile ? 0.05 : 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
+    hidden: { y: isMobile ? 10 : 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.6,
+        duration: isMobile ? 0.3 : 0.6,
         ease: "easeOut",
       },
     },
@@ -630,7 +649,7 @@ const Influencers = memo(() => {
                         <InfluencerCard
                           key={client.id}
                           variants={itemVariants}
-                          whileHover={{ scale: 1.02 }}
+                          whileHover={isMobile ? {} : { scale: 1.02 }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -719,152 +738,275 @@ const Influencers = memo(() => {
                     </div>
                   ) : (
                     <SwiperContainer>
-                      <Swiper
-                        modules={[Navigation, Autoplay]}
-                        spaceBetween={40}
-                        slidesPerView={3}
-                        navigation={true}
-                        pagination={false}
-                        autoplay={
-                          isIOS
-                            ? false
-                            : {
-                                delay: 4000,
-                                disableOnInteraction: false,
-                                pauseOnMouseEnter: true,
-                                stopOnLastSlide: false,
+                      {(() => {
+                        try {
+                          return (
+                            <Swiper
+                              modules={
+                                isMobile ? [Autoplay] : [Navigation, Autoplay]
                               }
-                        }
-                        touchRatio={1}
-                        touchAngle={45}
-                        simulateTouch={true}
-                        allowTouchMove={true}
-                        grabCursor={true}
-                        watchSlidesProgress={true}
-                        watchSlidesVisibility={true}
-                        preventInteractionOnTransition={false}
-                        breakpoints={{
-                          320: {
-                            slidesPerView: 1,
-                            spaceBetween: 20,
-                            centeredSlides: true,
-                            touchRatio: 1,
-                          },
-                          768: {
-                            slidesPerView: 2,
-                            spaceBetween: 30,
-                            centeredSlides: false,
-                            touchRatio: 1,
-                          },
-                          1024: {
-                            slidesPerView: 3,
-                            spaceBetween: 40,
-                            centeredSlides: false,
-                            touchRatio: 1,
-                          },
-                        }}
-                        loop={filteredInfluencers.length > 3}
-                        onError={(swiper) => {
-                          console.error("Swiper error:", swiper);
-                          setSwiperError(true);
-                        }}
-                        onInit={(swiper) => {
-                          setSwiperError(false);
-                        }}
-                      >
-                        {filteredInfluencers.map((client) => (
-                          <SwiperSlide key={client.id}>
-                            <InfluencerCard
-                              variants={itemVariants}
-                              whileHover={{ scale: 1.02 }}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
+                              spaceBetween={isMobile ? 20 : 40}
+                              slidesPerView={isMobile ? 1 : 3}
+                              navigation={!isMobile}
+                              pagination={false}
+                              autoplay={
+                                isIOS || isMobile
+                                  ? false
+                                  : {
+                                      delay: 5000,
+                                      disableOnInteraction: false,
+                                      pauseOnMouseEnter: true,
+                                      stopOnLastSlide: false,
+                                    }
+                              }
+                              touchRatio={1}
+                              touchAngle={45}
+                              simulateTouch={true}
+                              allowTouchMove={true}
+                              grabCursor={!isMobile}
+                              watchSlidesProgress={false}
+                              preventInteractionOnTransition={false}
+                              breakpoints={{
+                                320: {
+                                  slidesPerView: 1,
+                                  spaceBetween: 20,
+                                  centeredSlides: true,
+                                  touchRatio: 1,
+                                },
+                                768: {
+                                  slidesPerView: 2,
+                                  spaceBetween: 30,
+                                  centeredSlides: false,
+                                  touchRatio: 1,
+                                },
+                                1024: {
+                                  slidesPerView: 3,
+                                  spaceBetween: 40,
+                                  centeredSlides: false,
+                                  touchRatio: 1,
+                                },
+                              }}
+                              loop={
+                                filteredInfluencers.length > (isMobile ? 1 : 3)
+                              }
+                              onError={(swiper) => {
+                                console.error("Swiper error:", swiper);
+                                setSwiperError(true);
+                              }}
+                              onInit={(swiper) => {
+                                setSwiperError(false);
+                              }}
+                              onTouchStart={(swiper) => {
+                                // Disable autoplay on touch
+                                if (swiper && swiper.autoplay) {
+                                  swiper.autoplay.stop();
+                                }
                               }}
                             >
-                              <InfluencerImage>
-                                {client.photo ? (
-                                  <InfluencerPhoto
-                                    src={client.photo}
-                                    alt={client.name}
-                                    loading="lazy"
-                                    decoding="async"
-                                    onLoad={(e) => {
-                                      e.target.style.opacity = "1";
+                              {filteredInfluencers.map((client) => (
+                                <SwiperSlide key={client.id}>
+                                  <InfluencerCard
+                                    variants={itemVariants}
+                                    whileHover={isMobile ? {} : { scale: 1.02 }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                     }}
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                    }}
-                                  />
-                                ) : (
-                                  client.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                )}
-                              </InfluencerImage>
-                              <InfluencerContent>
-                                <InfluencerName>{client.name}</InfluencerName>
-                                <InfluencerCategory>
-                                  {client.type}
-                                </InfluencerCategory>
+                                  >
+                                    <InfluencerImage>
+                                      {client.photo ? (
+                                        <InfluencerPhoto
+                                          src={client.photo}
+                                          alt={client.name}
+                                          loading="lazy"
+                                          decoding="async"
+                                          onLoad={(e) => {
+                                            e.target.style.opacity = "1";
+                                          }}
+                                          onError={(e) => {
+                                            e.target.style.display = "none";
+                                          }}
+                                        />
+                                      ) : (
+                                        client.name
+                                          .split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                      )}
+                                    </InfluencerImage>
+                                    <InfluencerContent>
+                                      <InfluencerName>
+                                        {client.name}
+                                      </InfluencerName>
+                                      <InfluencerCategory>
+                                        {client.type}
+                                      </InfluencerCategory>
 
-                                <SocialLinks>
-                                  {(() => {
-                                    const slug = slugifyName(client.name);
-                                    const igUrl = slug
-                                      ? `https://www.instagram.com/${slug}`
-                                      : "#";
-                                    const ttUrl = slug
-                                      ? `https://www.tiktok.com/@${slug}`
-                                      : "#";
-                                    return (
-                                      <>
-                                        <SocialLink
-                                          target="_blank"
-                                          href={igUrl}
-                                          aria-label="Instagram"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (igUrl !== "#") {
-                                              window.open(
-                                                igUrl,
-                                                "_blank",
-                                                "noopener,noreferrer"
-                                              );
-                                            }
-                                          }}
-                                        >
-                                          <Instagram size={16} />
-                                        </SocialLink>
-                                        <SocialLink
-                                          target="_blank"
-                                          href={ttUrl}
-                                          aria-label="TikTok"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (ttUrl !== "#") {
-                                              window.open(
-                                                ttUrl,
-                                                "_blank",
-                                                "noopener,noreferrer"
-                                              );
-                                            }
-                                          }}
-                                        >
-                                          <TikTokIcon size={16} />
-                                        </SocialLink>
-                                      </>
-                                    );
-                                  })()}
-                                </SocialLinks>
-                              </InfluencerContent>
-                            </InfluencerCard>
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
+                                      <SocialLinks>
+                                        {(() => {
+                                          const slug = slugifyName(client.name);
+                                          const igUrl = slug
+                                            ? `https://www.instagram.com/${slug}`
+                                            : "#";
+                                          const ttUrl = slug
+                                            ? `https://www.tiktok.com/@${slug}`
+                                            : "#";
+                                          return (
+                                            <>
+                                              <SocialLink
+                                                target="_blank"
+                                                href={igUrl}
+                                                aria-label="Instagram"
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
+                                                  if (igUrl !== "#") {
+                                                    window.open(
+                                                      igUrl,
+                                                      "_blank",
+                                                      "noopener,noreferrer"
+                                                    );
+                                                  }
+                                                }}
+                                              >
+                                                <Instagram size={16} />
+                                              </SocialLink>
+                                              <SocialLink
+                                                target="_blank"
+                                                href={ttUrl}
+                                                aria-label="TikTok"
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
+                                                  if (ttUrl !== "#") {
+                                                    window.open(
+                                                      ttUrl,
+                                                      "_blank",
+                                                      "noopener,noreferrer"
+                                                    );
+                                                  }
+                                                }}
+                                              >
+                                                <TikTokIcon size={16} />
+                                              </SocialLink>
+                                            </>
+                                          );
+                                        })()}
+                                      </SocialLinks>
+                                    </InfluencerContent>
+                                  </InfluencerCard>
+                                </SwiperSlide>
+                              ))}
+                            </Swiper>
+                          );
+                        } catch (error) {
+                          console.error("Swiper render error:", error);
+                          return (
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns:
+                                  "repeat(auto-fit, minmax(300px, 1fr))",
+                                gap: "2rem",
+                                padding: "2rem 0",
+                              }}
+                            >
+                              {filteredInfluencers.map((client) => (
+                                <InfluencerCard
+                                  key={client.id}
+                                  variants={itemVariants}
+                                  whileHover={isMobile ? {} : { scale: 1.02 }}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <InfluencerImage>
+                                    {client.photo ? (
+                                      <InfluencerPhoto
+                                        src={client.photo}
+                                        alt={client.name}
+                                        loading="lazy"
+                                        decoding="async"
+                                        onLoad={(e) => {
+                                          e.target.style.opacity = "1";
+                                        }}
+                                        onError={(e) => {
+                                          e.target.style.display = "none";
+                                        }}
+                                      />
+                                    ) : (
+                                      client.name
+                                        .split(" ")
+                                        .map((n) => n[0])
+                                        .join("")
+                                    )}
+                                  </InfluencerImage>
+                                  <InfluencerContent>
+                                    <InfluencerName>
+                                      {client.name}
+                                    </InfluencerName>
+                                    <InfluencerCategory>
+                                      {client.type}
+                                    </InfluencerCategory>
+                                    <SocialLinks>
+                                      {(() => {
+                                        const slug = slugifyName(client.name);
+                                        const igUrl = slug
+                                          ? `https://www.instagram.com/${slug}`
+                                          : "#";
+                                        const ttUrl = slug
+                                          ? `https://www.tiktok.com/@${slug}`
+                                          : "#";
+                                        return (
+                                          <>
+                                            <SocialLink
+                                              target="_blank"
+                                              href={igUrl}
+                                              aria-label="Instagram"
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (igUrl !== "#") {
+                                                  window.open(
+                                                    igUrl,
+                                                    "_blank",
+                                                    "noopener,noreferrer"
+                                                  );
+                                                }
+                                              }}
+                                            >
+                                              <Instagram size={16} />
+                                            </SocialLink>
+                                            <SocialLink
+                                              target="_blank"
+                                              href={ttUrl}
+                                              aria-label="TikTok"
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                if (ttUrl !== "#") {
+                                                  window.open(
+                                                    ttUrl,
+                                                    "_blank",
+                                                    "noopener,noreferrer"
+                                                  );
+                                                }
+                                              }}
+                                            >
+                                              <TikTokIcon size={16} />
+                                            </SocialLink>
+                                          </>
+                                        );
+                                      })()}
+                                    </SocialLinks>
+                                  </InfluencerContent>
+                                </InfluencerCard>
+                              ))}
+                            </div>
+                          );
+                        }
+                      })()}
                     </SwiperContainer>
                   )}
                 </motion.div>
