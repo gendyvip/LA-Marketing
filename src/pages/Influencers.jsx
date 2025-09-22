@@ -2,7 +2,7 @@ import React, { useState, memo, useMemo } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { Instagram, Facebook } from "lucide-react";
+import { Instagram, Facebook, Search } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
@@ -182,6 +182,35 @@ const FilterTabs = styled.div`
   gap: 1rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
+`;
+
+const SearchBarWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1.5rem 0;
+  padding: 0 2rem;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  max-width: 1024px;
+  min-width: 420px;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgb(0, 0, 0);
+  border: 1px solid #333333;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: #888888;
+  }
+
+  &:focus {
+    border-color: #ee2f2f;
+    box-shadow: 0 0 0 3px rgba(238, 47, 47, 0.15);
+  }
 `;
 
 const FilterTab = styled.button`
@@ -411,6 +440,7 @@ const SocialLink = styled.a`
 
 const Influencers = memo(() => {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -418,13 +448,19 @@ const Influencers = memo(() => {
 
   const { items, filters } = useInfluencerCatalog();
 
-  const filteredInfluencers = useMemo(
-    () =>
+  const filteredInfluencers = useMemo(() => {
+    const byCategory =
       activeFilter === "all"
         ? items
-        : items.filter((item) => item.category === activeFilter),
-    [activeFilter, items]
-  );
+        : items.filter((item) => item.category === activeFilter);
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return byCategory;
+    return byCategory.filter((item) => {
+      const name = (item.name || "").toLowerCase();
+      const type = (item.type || "").toLowerCase();
+      return name.includes(q) || type.includes(q);
+    });
+  }, [activeFilter, items, searchQuery]);
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -516,6 +552,16 @@ const Influencers = memo(() => {
               ))}
             </FilterTabs>
 
+            <SearchBarWrapper>
+              <SearchInput
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search influencers..."
+                aria-label="Search influencers"
+              />
+            </SearchBarWrapper>
+
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -529,110 +575,127 @@ const Influencers = memo(() => {
                   animate="visible"
                   exit="hidden"
                 >
-                  <SwiperContainer>
-                    <Swiper
-                      modules={[Navigation, Autoplay, EffectCoverflow]}
-                      spaceBetween={40}
-                      slidesPerView={3}
-                      navigation={true}
-                      pagination={false}
-                      autoplay={{
-                        delay: 3000,
-                        disableOnInteraction: false,
-                        pauseOnMouseEnter: true,
+                  {filteredInfluencers.length === 0 ? (
+                    <div
+                      style={{
+                        textAlign: "center",
+                        color: "#bbb",
+                        padding: "2rem 1rem",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "8px",
                       }}
-                      effect="coverflow"
-                      coverflowEffect={{
-                        rotate: 50,
-                        stretch: 0,
-                        depth: 100,
-                        modifier: 1,
-                        slideShadows: true,
-                      }}
-                      breakpoints={{
-                        320: {
-                          slidesPerView: 1,
-                          spaceBetween: 20,
-                          centeredSlides: true,
-                        },
-                        768: {
-                          slidesPerView: 2,
-                          spaceBetween: 30,
-                          centeredSlides: false,
-                        },
-                        1024: {
-                          slidesPerView: 3,
-                          spaceBetween: 40,
-                          centeredSlides: false,
-                        },
-                      }}
-                      loop={true}
                     >
-                      {filteredInfluencers.map((client) => (
-                        <SwiperSlide key={client.id}>
-                          <InfluencerCard
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <InfluencerImage>
-                              {client.photo ? (
-                                <InfluencerPhoto
-                                  src={client.photo}
-                                  alt={client.name}
-                                  loading="lazy"
-                                  decoding="async"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                  }}
-                                />
-                              ) : (
-                                client.name
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                              )}
-                            </InfluencerImage>
-                            <InfluencerContent>
-                              <InfluencerName>{client.name}</InfluencerName>
-                              <InfluencerCategory>
-                                {client.type}
-                              </InfluencerCategory>
+                      <Search size={18} color="#888" />
+                      <span>No influencers found</span>
+                    </div>
+                  ) : (
+                    <SwiperContainer>
+                      <Swiper
+                        modules={[Navigation, Autoplay, EffectCoverflow]}
+                        spaceBetween={40}
+                        slidesPerView={3}
+                        navigation={true}
+                        pagination={false}
+                        autoplay={{
+                          delay: 3000,
+                          disableOnInteraction: false,
+                          pauseOnMouseEnter: true,
+                        }}
+                        effect="coverflow"
+                        coverflowEffect={{
+                          rotate: 50,
+                          stretch: 0,
+                          depth: 100,
+                          modifier: 1,
+                          slideShadows: true,
+                        }}
+                        breakpoints={{
+                          320: {
+                            slidesPerView: 1,
+                            spaceBetween: 20,
+                            centeredSlides: true,
+                          },
+                          768: {
+                            slidesPerView: 2,
+                            spaceBetween: 30,
+                            centeredSlides: false,
+                          },
+                          1024: {
+                            slidesPerView: 3,
+                            spaceBetween: 40,
+                            centeredSlides: false,
+                          },
+                        }}
+                        loop={true}
+                      >
+                        {filteredInfluencers.map((client) => (
+                          <SwiperSlide key={client.id}>
+                            <InfluencerCard
+                              variants={itemVariants}
+                              whileHover={{ scale: 1.02 }}
+                            >
+                              <InfluencerImage>
+                                {client.photo ? (
+                                  <InfluencerPhoto
+                                    src={client.photo}
+                                    alt={client.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                    }}
+                                  />
+                                ) : (
+                                  client.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                )}
+                              </InfluencerImage>
+                              <InfluencerContent>
+                                <InfluencerName>{client.name}</InfluencerName>
+                                <InfluencerCategory>
+                                  {client.type}
+                                </InfluencerCategory>
 
-                              <SocialLinks>
-                                {(() => {
-                                  const slug = slugifyName(client.name);
-                                  const igUrl = slug
-                                    ? `https://www.instagram.com/${slug}`
-                                    : "#";
-                                  const ttUrl = slug
-                                    ? `https://www.tiktok.com/@${slug}`
-                                    : "#";
-                                  return (
-                                    <>
-                                      <SocialLink
-                                        target="_blank"
-                                        href={igUrl}
-                                        aria-label="Instagram"
-                                      >
-                                        <Instagram size={16} />
-                                      </SocialLink>
-                                      <SocialLink
-                                        target="_blank"
-                                        href={ttUrl}
-                                        aria-label="TikTok"
-                                      >
-                                        <TikTokIcon size={16} />
-                                      </SocialLink>
-                                    </>
-                                  );
-                                })()}
-                              </SocialLinks>
-                            </InfluencerContent>
-                          </InfluencerCard>
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                  </SwiperContainer>
+                                <SocialLinks>
+                                  {(() => {
+                                    const slug = slugifyName(client.name);
+                                    const igUrl = slug
+                                      ? `https://www.instagram.com/${slug}`
+                                      : "#";
+                                    const ttUrl = slug
+                                      ? `https://www.tiktok.com/@${slug}`
+                                      : "#";
+                                    return (
+                                      <>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={igUrl}
+                                          aria-label="Instagram"
+                                        >
+                                          <Instagram size={16} />
+                                        </SocialLink>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={ttUrl}
+                                          aria-label="TikTok"
+                                        >
+                                          <TikTokIcon size={16} />
+                                        </SocialLink>
+                                      </>
+                                    );
+                                  })()}
+                                </SocialLinks>
+                              </InfluencerContent>
+                            </InfluencerCard>
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </SwiperContainer>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </motion.div>
