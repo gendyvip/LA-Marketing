@@ -663,28 +663,55 @@ const Influencers = memo(() => {
                               {client.type}
                             </InfluencerCategory>
                             <SocialLinks>
-                              <SocialLink
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                href="#"
-                                aria-label="Instagram (Coming Soon)"
-                                style={{ cursor: "not-allowed", opacity: 0.6 }}
-                              >
-                                <Instagram size={16} />
-                              </SocialLink>
-                              <SocialLink
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                href="#"
-                                aria-label="TikTok (Coming Soon)"
-                                style={{ cursor: "not-allowed", opacity: 0.6 }}
-                              >
-                                <TikTokIcon size={16} />
-                              </SocialLink>
+                              {(() => {
+                                const slug = slugifyName(client.name);
+                                const igUrl = slug
+                                  ? `https://www.instagram.com/${slug}`
+                                  : "#";
+                                const ttUrl = slug
+                                  ? `https://www.tiktok.com/@${slug}`
+                                  : "#";
+                                return (
+                                  <>
+                                    <SocialLink
+                                      target="_blank"
+                                      href={igUrl}
+                                      aria-label="Instagram"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (igUrl !== "#") {
+                                          window.open(
+                                            igUrl,
+                                            "_blank",
+                                            "noopener,noreferrer"
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      <Instagram size={16} />
+                                    </SocialLink>
+                                    <SocialLink
+                                      target="_blank"
+                                      href={ttUrl}
+                                      aria-label="TikTok"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (ttUrl !== "#") {
+                                          window.open(
+                                            ttUrl,
+                                            "_blank",
+                                            "noopener,noreferrer"
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      <TikTokIcon size={16} />
+                                    </SocialLink>
+                                  </>
+                                );
+                              })()}
                             </SocialLinks>
                           </InfluencerContent>
                         </InfluencerCard>
@@ -783,34 +810,55 @@ const Influencers = memo(() => {
                                 </InfluencerCategory>
 
                                 <SocialLinks>
-                                  <SocialLink
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                    }}
-                                    href="#"
-                                    aria-label="Instagram (Coming Soon)"
-                                    style={{
-                                      cursor: "not-allowed",
-                                      opacity: 0.6,
-                                    }}
-                                  >
-                                    <Instagram size={16} />
-                                  </SocialLink>
-                                  <SocialLink
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                    }}
-                                    href="#"
-                                    aria-label="TikTok (Coming Soon)"
-                                    style={{
-                                      cursor: "not-allowed",
-                                      opacity: 0.6,
-                                    }}
-                                  >
-                                    <TikTokIcon size={16} />
-                                  </SocialLink>
+                                  {(() => {
+                                    const slug = slugifyName(client.name);
+                                    const igUrl = slug
+                                      ? `https://www.instagram.com/${slug}`
+                                      : "#";
+                                    const ttUrl = slug
+                                      ? `https://www.tiktok.com/@${slug}`
+                                      : "#";
+                                    return (
+                                      <>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={igUrl}
+                                          aria-label="Instagram"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (igUrl !== "#") {
+                                              window.open(
+                                                igUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          <Instagram size={16} />
+                                        </SocialLink>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={ttUrl}
+                                          aria-label="TikTok"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (ttUrl !== "#") {
+                                              window.open(
+                                                ttUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          <TikTokIcon size={16} />
+                                        </SocialLink>
+                                      </>
+                                    );
+                                  })()}
                                 </SocialLinks>
                               </InfluencerContent>
                             </InfluencerCard>
