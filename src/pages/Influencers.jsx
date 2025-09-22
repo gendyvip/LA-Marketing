@@ -237,11 +237,15 @@ const FilterTab = styled.button`
 const SwiperContainer = styled.div`
   width: 100%;
   padding: 2rem 0;
+  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
 
   .swiper {
     width: 100%;
     height: 100%;
     padding: 2rem 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .swiper-slide {
@@ -250,6 +254,8 @@ const SwiperContainer = styled.div`
     align-items: stretch;
     width: 100%;
     height: auto;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   @media (max-width: 768px) {
@@ -369,6 +375,10 @@ const InfluencerPhoto = styled.img`
   min-height: 100%;
   transition: opacity 0.3s ease;
   opacity: 0;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 
   &[src] {
     opacity: 1;
@@ -377,6 +387,8 @@ const InfluencerPhoto = styled.img`
   @media (max-width: 768px) {
     object-fit: contain;
     object-position: center;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 `;
 
@@ -441,10 +453,18 @@ const SocialLink = styled.a`
 const Influencers = memo(() => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isIOS, setIsIOS] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  // Detect iOS
+  React.useEffect(() => {
+    const isIOSDevice =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    setIsIOS(isIOSDevice);
+  }, []);
 
   const { items, filters } = useInfluencerCatalog();
 
@@ -593,24 +613,24 @@ const Influencers = memo(() => {
                   ) : (
                     <SwiperContainer>
                       <Swiper
-                        modules={[Navigation, Autoplay, EffectCoverflow]}
+                        modules={[Navigation, Autoplay]}
                         spaceBetween={40}
                         slidesPerView={3}
                         navigation={true}
                         pagination={false}
-                        autoplay={{
-                          delay: 3000,
-                          disableOnInteraction: false,
-                          pauseOnMouseEnter: true,
-                        }}
-                        effect="coverflow"
-                        coverflowEffect={{
-                          rotate: 50,
-                          stretch: 0,
-                          depth: 100,
-                          modifier: 1,
-                          slideShadows: true,
-                        }}
+                        autoplay={
+                          isIOS
+                            ? false
+                            : {
+                                delay: 3000,
+                                disableOnInteraction: false,
+                                pauseOnMouseEnter: true,
+                              }
+                        }
+                        touchRatio={1}
+                        touchAngle={45}
+                        simulateTouch={true}
+                        allowTouchMove={true}
                         breakpoints={{
                           320: {
                             slidesPerView: 1,
@@ -643,6 +663,9 @@ const Influencers = memo(() => {
                                     alt={client.name}
                                     loading="lazy"
                                     decoding="async"
+                                    onLoad={(e) => {
+                                      e.target.style.opacity = "1";
+                                    }}
                                     onError={(e) => {
                                       e.target.style.display = "none";
                                     }}
