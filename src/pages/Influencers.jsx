@@ -1,18 +1,17 @@
-import React, { useState, memo, useMemo, useCallback } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { Instagram, Facebook, Video } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-coverflow';
-import SEO from '../components/SEO';
-import { seoData } from '../utils/seoData';
+import React, { useState, memo, useMemo } from "react";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { Instagram, Facebook } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay, EffectCoverflow } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/effect-coverflow";
+import SEO from "../components/SEO";
+import { seoData } from "../utils/seoData";
 
-// Custom TikTok icon component
+// TikTok icon used in social links
 const TikTokIcon = ({ size = 16 }) => (
   <svg
     width={size}
@@ -21,11 +20,73 @@ const TikTokIcon = ({ size = 16 }) => (
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
   </svg>
 );
-import influencerPhoto1 from '../assets/Influencers/S.jpg';
-import influencerPhoto2 from '../assets/clients/fayrouz.webp';
+
+// Build a dynamic catalog of influencer images grouped by category (folder name)
+const useInfluencerCatalog = () => {
+  return useMemo(() => {
+    const modules = {
+      // Only JPG files
+      ...import.meta.glob("../assets/Influencers/**/*.jpg", {
+        eager: true,
+        import: "default",
+      }),
+      ...import.meta.glob("../assets/Influencers/**/*.JPG", {
+        eager: true,
+        import: "default",
+      }),
+      // Include non-standard suffixed JPG files like .jpgcc, .jpgDD
+      ...import.meta.glob("../assets/Influencers/**/*.jpg*", {
+        eager: true,
+        import: "default",
+      }),
+      ...import.meta.glob("../assets/Influencers/**/*.JPG*", {
+        eager: true,
+        import: "default",
+      }),
+    };
+
+    const items = [];
+    const categoryLabelByKey = new Map();
+
+    Object.entries(modules).forEach(([path, url], index) => {
+      const marker = "/assets/Influencers/";
+      const after = path.split(marker)[1] || "";
+      const segments = after.split("/");
+      const categoryLabel = segments[0] || "Uncategorized";
+      const categoryKey = categoryLabel.toLowerCase();
+      const filename =
+        segments.slice(1).join("/") ||
+        path.split("/").pop() ||
+        `image-${index}`;
+      const name = filename.replace(/\.[^.]+$/, "");
+
+      if (!categoryLabelByKey.has(categoryKey)) {
+        categoryLabelByKey.set(categoryKey, categoryLabel);
+      }
+
+      items.push({
+        id: `${categoryKey}-${index}`,
+        name,
+        category: categoryKey,
+        type: categoryLabel,
+        photo: url,
+        socialLinks: [],
+      });
+    });
+
+    const filters = [{ key: "all", label: "All" }].concat(
+      Array.from(categoryLabelByKey.entries()).map(([key, label]) => ({
+        key,
+        label,
+      }))
+    );
+
+    return { items, filters };
+  }, []);
+};
 
 const InfluencersContainer = styled.section`
   padding: 0;
@@ -34,23 +95,30 @@ const InfluencersContainer = styled.section`
   overflow: hidden;
 `;
 
-
 const ContentSection = styled.section`
   padding: 8rem 0 5rem;
   background: #000000;
   position: relative;
   overflow: hidden;
   margin-top: 0;
-  
+
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 80% 40%, rgba(238, 47, 47, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 40% 50%, rgba(238, 47, 47, 0.03) 0%, transparent 50%);
+    background: radial-gradient(
+        circle at 80% 40%,
+        rgba(238, 47, 47, 0.05) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 50%,
+        rgba(238, 47, 47, 0.03) 0%,
+        transparent 50%
+      );
     z-index: 1;
   }
 `;
@@ -69,7 +137,7 @@ const HeroSection = styled(motion.div)`
 `;
 
 const HeroTitle = styled.h1`
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 4rem;
   font-weight: 700;
   background: linear-gradient(135deg, #ffffff 0%, #ee2f2f 50%, #ffffff 100%);
@@ -80,9 +148,9 @@ const HeroTitle = styled.h1`
   letter-spacing: -0.02em;
   position: relative;
   text-align: center;
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -10px;
     left: 50%;
@@ -92,7 +160,7 @@ const HeroTitle = styled.h1`
     background: linear-gradient(90deg, #ee2f2f, #c41e1e);
     border-radius: 2px;
   }
-  
+
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
@@ -119,19 +187,19 @@ const FilterTabs = styled.div`
 const FilterTab = styled.button`
   padding: 0.75rem 1.5rem;
   border: 2px solid #333333;
-  background: ${props => props.$active ? '#ee2f2f' : 'transparent'};
-  color: ${props => props.$active ? '#ffffff' : '#ffffff'};
+  background: ${(props) => (props.$active ? "#ee2f2f" : "transparent")};
+  color: ${(props) => (props.$active ? "#ffffff" : "#ffffff")};
   border-radius: 2rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     border-color: #ee2f2f;
     color: #ffffff;
     background: #ee2f2f;
   }
-  
+
   &.active {
     border-color: #ee2f2f;
   }
@@ -140,13 +208,13 @@ const FilterTab = styled.button`
 const SwiperContainer = styled.div`
   width: 100%;
   padding: 2rem 0;
-  
+
   .swiper {
     width: 100%;
     height: 100%;
     padding: 2rem 0;
   }
-  
+
   .swiper-slide {
     display: flex;
     justify-content: center;
@@ -154,44 +222,53 @@ const SwiperContainer = styled.div`
     width: 100%;
     height: auto;
   }
-  
+
   @media (max-width: 768px) {
     padding: 1rem 0;
-    
+
     .swiper {
       padding: 1rem 0;
       width: 100%;
     }
-    
+
     .swiper-slide {
       width: 100%;
       max-width: 100%;
     }
   }
-  
+
   .swiper-button-next,
   .swiper-button-prev {
     color: #ee2f2f;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    margin-top: -25px;
-    
+    width: 30px;
+    height: 30px;
+    margin-top: -18px;
+    box-sizing: content-box;
+    padding: 8px;
+
     &:after {
-      font-size: 20px;
+      font-size: 12px;
     }
   }
-  
+
+  .swiper-button-next {
+    right: 12px;
+  }
+  .swiper-button-prev {
+    left: 12px;
+  }
+
   .swiper-pagination {
     margin-top: 2rem;
     position: relative;
   }
-  
+
   .swiper-pagination-bullet {
     background: #ee2f2f;
     opacity: 0.5;
-    
+
     &.swiper-pagination-bullet-active {
       opacity: 1;
     }
@@ -211,13 +288,13 @@ const InfluencerCard = styled(motion.div)`
   width: 100%;
   max-width: 450px;
   margin: 0 auto;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(238, 47, 47, 0.2);
     border-color: #ee2f2f;
   }
-  
+
   @media (max-width: 768px) {
     max-width: 100%;
     width: 100%;
@@ -239,12 +316,12 @@ const InfluencerImage = styled.div`
   width: 100%;
   margin: 0;
   padding: 0;
-  
+
   @media (max-width: 768px) {
     height: 418px;
     overflow: visible;
   }
-  
+
   @media (max-width: 480px) {
     height: 550px;
     overflow: visible;
@@ -263,11 +340,11 @@ const InfluencerPhoto = styled.img`
   min-height: 100%;
   transition: opacity 0.3s ease;
   opacity: 0;
-  
+
   &[src] {
     opacity: 1;
   }
-  
+
   @media (max-width: 768px) {
     object-fit: contain;
     object-position: center;
@@ -276,35 +353,35 @@ const InfluencerPhoto = styled.img`
 
 const InfluencerContent = styled.div`
   padding: 3rem;
-  
+
   @media (max-width: 768px) {
     padding: 2.5rem;
   }
-  
+
   @media (max-width: 480px) {
     padding: 2rem;
   }
 `;
 
 const InfluencerName = styled.h3`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.75rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #ffffff;
   margin-bottom: 1rem;
   letter-spacing: -0.01em;
+  text-transform: uppercase;
 `;
 
 const InfluencerCategory = styled.p`
   color: #ee2f2f;
   font-weight: 500;
   margin-bottom: 1.5rem;
-  font-size: 1.125rem;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.9;
 `;
-
 
 const SocialLinks = styled.div`
   display: flex;
@@ -323,7 +400,7 @@ const SocialLink = styled.a`
   text-decoration: none;
   transition: all 0.3s ease;
   border: 1px solid #555555;
-  
+
   &:hover {
     background: #ee2f2f;
     color: #ffffff;
@@ -333,146 +410,57 @@ const SocialLink = styled.a`
 `;
 
 const Influencers = memo(() => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [ref, inView] = useInView({
     triggerOnce: true,
-    threshold: 0.1
+    threshold: 0.1,
   });
 
-  const filters = useMemo(() => [
-    { key: 'all', label: 'All' },
-    { key: 'fashion', label: 'Fashion' },
-    { key: 'beauty', label: 'Beauty' },
-    { key: 'lifestyle', label: 'Lifestyle' },
-    { key: 'travel', label: 'Travel' },
-    { key: 'actors', label: 'Actors' },
-    { key: 'comedy', label: 'Comedy' },
-    { key: 'singing', label: 'Singing' },
-    { key: 'food', label: 'Food' },
-    { key: 'cars', label: 'Cars' }
-  ], []);
+  const { items, filters } = useInfluencerCatalog();
 
-  const influencers = useMemo(() => [
-    {
-      id: 1,
-      name: 'Style Queen',
-      category: 'fashion',
-      type: 'Fashion Influencer',
-      photo: influencerPhoto1,
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Beauty Guru',
-      category: 'beauty',
-      type: 'Beauty Influencer',
-      photo: influencerPhoto2,
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Lifestyle Vlogger',
-      category: 'lifestyle',
-      type: 'Lifestyle Influencer',
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Wanderlust',
-      category: 'travel',
-      type: 'Travel Influencer',
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 5,
-      name: 'Drama Star',
-      category: 'actors',
-      type: 'Actor',
-      photo: influencerPhoto1,
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 6,
-      name: 'Comedy King',
-      category: 'comedy',
-      type: 'Comedy Influencer',
-      photo: influencerPhoto2,
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 7,
-      name: 'Music Star',
-      category: 'singing',
-      type: 'Singer',
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 8,
-      name: 'Food Blogger',
-      category: 'food',
-      type: 'Food Influencer',
-      photo: influencerPhoto2,
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    },
-    {
-      id: 9,
-      name: 'Car Enthusiast',
-      category: 'cars',
-      type: 'Car Influencer',
-      socialLinks: [
-        { platform: 'instagram', url: '#' },
-        { platform: 'facebook', url: '#' },
-        { platform: 'tiktok', url: '#' }
-      ]
-    }
-  ], []);
-
-  const filteredInfluencers = useMemo(() => 
-    activeFilter === 'all' 
-      ? influencers  
-      : influencers.filter(client => client.category === activeFilter),
-    [activeFilter, influencers]
+  const filteredInfluencers = useMemo(
+    () =>
+      activeFilter === "all"
+        ? items
+        : items.filter((item) => item.category === activeFilter),
+    [activeFilter, items]
   );
 
   const getSocialIcon = (platform) => {
     switch (platform) {
-      case 'instagram': return <Instagram size={16} />;
-      case 'facebook': return <Facebook size={16} />;
-      case 'tiktok': return <TikTokIcon size={16} />;
-      default: return null;
+      case "instagram":
+        return <Instagram size={16} />;
+      case "facebook":
+        return <Facebook size={16} />;
+      case "tiktok":
+        return <TikTokIcon size={16} />;
+      default:
+        return null;
     }
+  };
+
+  const formatFilterLabel = (label) => {
+    if (!label) return label;
+    return label
+      .toString()
+      .split(" ")
+      .map((word) =>
+        word.length ? word[0].toUpperCase() + word.slice(1) : word
+      )
+      .join(" ");
+  };
+
+  const slugifyName = (name) => {
+    if (!name) return "";
+    return name
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s_-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   };
 
   const containerVariants = {
@@ -480,9 +468,9 @@ const Influencers = memo(() => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -492,135 +480,162 @@ const Influencers = memo(() => {
       opacity: 1,
       transition: {
         duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+        ease: "easeOut",
+      },
+    },
   };
-
 
   return (
     <>
       <SEO {...seoData.influencers} />
       <InfluencersContainer>
         <ContentSection id="content">
-        <Container ref={ref}>
-          <HeroSection
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6 }}
-          >
-            <HeroTitle>LA Marketing Influencer Network</HeroTitle>
-            <HeroSubtitle>
-              We're proud to work with amazing brands, influencers, and startups across the Middle East.
-            </HeroSubtitle>
-          </HeroSection>
+          <Container ref={ref}>
+            <HeroSection
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6 }}
+            >
+              <HeroTitle>LA Marketing Influencer Network</HeroTitle>
+              <HeroSubtitle>
+                We're proud to work with amazing brands, influencers, and
+                startups across the Middle East.
+              </HeroSubtitle>
+            </HeroSection>
 
-          <FilterTabs>
-            {filters.map((filter) => (
-              <FilterTab
-                key={filter.key}
-                $active={activeFilter === filter.key}
-                className={activeFilter === filter.key ? 'active' : ''}
-                onClick={() => setActiveFilter(filter.key)}
-              >
-                {filter.label}
-              </FilterTab>
-            ))}
-          </FilterTabs>
+            <FilterTabs>
+              {filters.map((filter) => (
+                <FilterTab
+                  key={filter.key}
+                  $active={activeFilter === filter.key}
+                  className={activeFilter === filter.key ? "active" : ""}
+                  onClick={() => setActiveFilter(filter.key)}
+                >
+                  {formatFilterLabel(filter.label)}
+                </FilterTab>
+              ))}
+            </FilterTabs>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeFilter}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <SwiperContainer>
-                  <Swiper
-                    modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
-                    spaceBetween={40}
-                    slidesPerView={3}
-                    navigation={false}
-                    pagination={{ clickable: true }}
-                    autoplay={{
-                      delay: 3000,
-                      disableOnInteraction: false,
-                      pauseOnMouseEnter: true,
-                    }}
-                    effect="coverflow"
-                    coverflowEffect={{
-                      rotate: 50,
-                      stretch: 0,
-                      depth: 100,
-                      modifier: 1,
-                      slideShadows: true,
-                    }}
-                    breakpoints={{
-                      320: {
-                        slidesPerView: 1,
-                        spaceBetween: 20,
-                        centeredSlides: true,
-                      },
-                      768: {
-                        slidesPerView: 2,
-                        spaceBetween: 30,
-                        centeredSlides: false,
-                      },
-                      1024: {
-                        slidesPerView: 3,
-                        spaceBetween: 40,
-                        centeredSlides: false,
-                      },
-                    }}
-                    loop={true}
-                  >
-                    {filteredInfluencers.map((client) => (
-                      <SwiperSlide key={client.id}>
-                        <InfluencerCard
-                          variants={itemVariants}
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          <InfluencerImage>
-                            {client.photo ? (
-                              <InfluencerPhoto 
-                                src={client.photo} 
-                                alt={client.name}
-                                loading="lazy"
-                                decoding="async"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              client.name.split(' ').map(n => n[0]).join('')
-                            )}
-                          </InfluencerImage>
-                          <InfluencerContent>
-                            <InfluencerName>{client.name}</InfluencerName>
-                            <InfluencerCategory>{client.type}</InfluencerCategory>
-                            
-                            <SocialLinks>
-                              {client.socialLinks.map((link, index) => (
-                                <SocialLink key={index} href={link.url}>
-                                  {getSocialIcon(link.platform)}
-                                </SocialLink>
-                              ))}
-                            </SocialLinks>
-                          </InfluencerContent>
-                        </InfluencerCard>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </SwiperContainer>
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFilter}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                >
+                  <SwiperContainer>
+                    <Swiper
+                      modules={[Navigation, Autoplay, EffectCoverflow]}
+                      spaceBetween={40}
+                      slidesPerView={3}
+                      navigation={true}
+                      pagination={false}
+                      autoplay={{
+                        delay: 3000,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true,
+                      }}
+                      effect="coverflow"
+                      coverflowEffect={{
+                        rotate: 50,
+                        stretch: 0,
+                        depth: 100,
+                        modifier: 1,
+                        slideShadows: true,
+                      }}
+                      breakpoints={{
+                        320: {
+                          slidesPerView: 1,
+                          spaceBetween: 20,
+                          centeredSlides: true,
+                        },
+                        768: {
+                          slidesPerView: 2,
+                          spaceBetween: 30,
+                          centeredSlides: false,
+                        },
+                        1024: {
+                          slidesPerView: 3,
+                          spaceBetween: 40,
+                          centeredSlides: false,
+                        },
+                      }}
+                      loop={true}
+                    >
+                      {filteredInfluencers.map((client) => (
+                        <SwiperSlide key={client.id}>
+                          <InfluencerCard
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                          >
+                            <InfluencerImage>
+                              {client.photo ? (
+                                <InfluencerPhoto
+                                  src={client.photo}
+                                  alt={client.name}
+                                  loading="lazy"
+                                  decoding="async"
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                  }}
+                                />
+                              ) : (
+                                client.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                              )}
+                            </InfluencerImage>
+                            <InfluencerContent>
+                              <InfluencerName>{client.name}</InfluencerName>
+                              <InfluencerCategory>
+                                {client.type}
+                              </InfluencerCategory>
+
+                              <SocialLinks>
+                                {(() => {
+                                  const slug = slugifyName(client.name);
+                                  const igUrl = slug
+                                    ? `https://www.instagram.com/${slug}`
+                                    : "#";
+                                  const ttUrl = slug
+                                    ? `https://www.tiktok.com/@${slug}`
+                                    : "#";
+                                  return (
+                                    <>
+                                      <SocialLink
+                                        target="_blank"
+                                        href={igUrl}
+                                        aria-label="Instagram"
+                                      >
+                                        <Instagram size={16} />
+                                      </SocialLink>
+                                      <SocialLink
+                                        target="_blank"
+                                        href={ttUrl}
+                                        aria-label="TikTok"
+                                      >
+                                        <TikTokIcon size={16} />
+                                      </SocialLink>
+                                    </>
+                                  );
+                                })()}
+                              </SocialLinks>
+                            </InfluencerContent>
+                          </InfluencerCard>
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  </SwiperContainer>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
           </Container>
         </ContentSection>
       </InfluencersContainer>
