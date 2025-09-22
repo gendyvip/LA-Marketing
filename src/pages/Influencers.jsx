@@ -346,7 +346,7 @@ const InfluencerImage = styled.div`
   font-size: 4rem;
   font-weight: 600;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: 0 5px 15px rgba(238, 47, 47, 0.3);
   width: 100%;
   margin: 0;
@@ -354,19 +354,19 @@ const InfluencerImage = styled.div`
 
   @media (max-width: 768px) {
     height: 418px;
-    overflow: visible;
+    overflow: hidden;
   }
 
   @media (max-width: 480px) {
     height: 550px;
-    overflow: visible;
+    overflow: hidden;
   }
 `;
 
 const InfluencerPhoto = styled.img`
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   margin: 0;
   padding: 0;
@@ -385,7 +385,7 @@ const InfluencerPhoto = styled.img`
   }
 
   @media (max-width: 768px) {
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
