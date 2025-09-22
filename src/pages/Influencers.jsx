@@ -322,6 +322,7 @@ const InfluencerCard = styled(motion.div)`
   width: 100%;
   max-width: 450px;
   margin: 0 auto;
+  cursor: default;
 
   &:hover {
     transform: translateY(-5px);
@@ -630,6 +631,10 @@ const Influencers = memo(() => {
                           key={client.id}
                           variants={itemVariants}
                           whileHover={{ scale: 1.02 }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
                         >
                           <InfluencerImage>
                             {client.photo ? (
@@ -658,33 +663,28 @@ const Influencers = memo(() => {
                               {client.type}
                             </InfluencerCategory>
                             <SocialLinks>
-                              {(() => {
-                                const slug = slugifyName(client.name);
-                                const igUrl = slug
-                                  ? `https://www.instagram.com/${slug}`
-                                  : "#";
-                                const ttUrl = slug
-                                  ? `https://www.tiktok.com/@${slug}`
-                                  : "#";
-                                return (
-                                  <>
-                                    <SocialLink
-                                      target="_blank"
-                                      href={igUrl}
-                                      aria-label="Instagram"
-                                    >
-                                      <Instagram size={16} />
-                                    </SocialLink>
-                                    <SocialLink
-                                      target="_blank"
-                                      href={ttUrl}
-                                      aria-label="TikTok"
-                                    >
-                                      <TikTokIcon size={16} />
-                                    </SocialLink>
-                                  </>
-                                );
-                              })()}
+                              <SocialLink
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                href="#"
+                                aria-label="Instagram (Coming Soon)"
+                                style={{ cursor: "not-allowed", opacity: 0.6 }}
+                              >
+                                <Instagram size={16} />
+                              </SocialLink>
+                              <SocialLink
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                href="#"
+                                aria-label="TikTok (Coming Soon)"
+                                style={{ cursor: "not-allowed", opacity: 0.6 }}
+                              >
+                                <TikTokIcon size={16} />
+                              </SocialLink>
                             </SocialLinks>
                           </InfluencerContent>
                         </InfluencerCard>
@@ -750,6 +750,10 @@ const Influencers = memo(() => {
                             <InfluencerCard
                               variants={itemVariants}
                               whileHover={{ scale: 1.02 }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
                             >
                               <InfluencerImage>
                                 {client.photo ? (
@@ -779,33 +783,34 @@ const Influencers = memo(() => {
                                 </InfluencerCategory>
 
                                 <SocialLinks>
-                                  {(() => {
-                                    const slug = slugifyName(client.name);
-                                    const igUrl = slug
-                                      ? `https://www.instagram.com/${slug}`
-                                      : "#";
-                                    const ttUrl = slug
-                                      ? `https://www.tiktok.com/@${slug}`
-                                      : "#";
-                                    return (
-                                      <>
-                                        <SocialLink
-                                          target="_blank"
-                                          href={igUrl}
-                                          aria-label="Instagram"
-                                        >
-                                          <Instagram size={16} />
-                                        </SocialLink>
-                                        <SocialLink
-                                          target="_blank"
-                                          href={ttUrl}
-                                          aria-label="TikTok"
-                                        >
-                                          <TikTokIcon size={16} />
-                                        </SocialLink>
-                                      </>
-                                    );
-                                  })()}
+                                  <SocialLink
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
+                                    href="#"
+                                    aria-label="Instagram (Coming Soon)"
+                                    style={{
+                                      cursor: "not-allowed",
+                                      opacity: 0.6,
+                                    }}
+                                  >
+                                    <Instagram size={16} />
+                                  </SocialLink>
+                                  <SocialLink
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
+                                    href="#"
+                                    aria-label="TikTok (Coming Soon)"
+                                    style={{
+                                      cursor: "not-allowed",
+                                      opacity: 0.6,
+                                    }}
+                                  >
+                                    <TikTokIcon size={16} />
+                                  </SocialLink>
                                 </SocialLinks>
                               </InfluencerContent>
                             </InfluencerCard>
