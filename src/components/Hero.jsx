@@ -127,14 +127,15 @@ const HeroContent = styled.div`
   }
 `;
 
-const HeroTitle = styled(motion.h1)`
+const HeroTitle = styled.h1`
   font-family: "Space Grotesk", sans-serif;
   font-size: 4.3rem;
   font-weight: 700;
   margin-bottom: 2rem;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  word-break: break-word;
+  word-break: keep-all;
+  white-space: pre-line;
   background: linear-gradient(
     135deg,
     #ffffff 0%,
@@ -146,13 +147,11 @@ const HeroTitle = styled(motion.h1)`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% 200%;
-  animation: gradientShift 3s ease-in-out infinite;
-  will-change: background-position;
   text-shadow: 0 0 30px rgba(238, 47, 47, 0.3);
   position: relative;
   text-align: center;
   max-width: 100%;
-  hyphens: auto;
+  hyphens: none;
   font-display: swap;
   will-change: transform;
 
@@ -198,7 +197,8 @@ const HeroTitle = styled(motion.h1)`
     line-height: 1.1;
     margin-bottom: 2rem;
     letter-spacing: -0.02em;
-    word-break: break-word;
+    word-break: keep-all;
+    white-space: pre-line;
     background: linear-gradient(
       135deg,
       #ffffff 0%,
@@ -210,13 +210,11 @@ const HeroTitle = styled(motion.h1)`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 200% 200%;
-    animation: gradientShift 3s ease-in-out infinite;
-    will-change: background-position;
     text-shadow: 0 0 30px rgba(238, 47, 47, 0.3);
     position: relative;
     text-align: center;
     max-width: 100%;
-    hyphens: auto;
+    hyphens: none;
     font-display: swap;
     will-change: transform;
     display: block;
@@ -230,7 +228,8 @@ const HeroTitle = styled(motion.h1)`
     line-height: 1.1;
     margin-bottom: 2rem;
     letter-spacing: -0.02em;
-    word-break: break-word;
+    word-break: keep-all;
+    white-space: pre-line;
     background: linear-gradient(
       135deg,
       #ffffff 0%,
@@ -242,13 +241,11 @@ const HeroTitle = styled(motion.h1)`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 200% 200%;
-    animation: gradientShift 3s ease-in-out infinite;
-    will-change: background-position;
     text-shadow: 0 0 30px rgba(238, 47, 47, 0.3);
     position: relative;
     text-align: center;
     max-width: 100%;
-    hyphens: auto;
+    hyphens: none;
     font-display: swap;
     will-change: transform;
     display: block;
@@ -262,7 +259,8 @@ const HeroTitle = styled(motion.h1)`
     line-height: 1.1;
     margin-bottom: 2rem;
     letter-spacing: -0.02em;
-    word-break: break-word;
+    word-break: keep-all;
+    white-space: pre-line;
     background: linear-gradient(
       135deg,
       #ffffff 0%,
@@ -274,13 +272,11 @@ const HeroTitle = styled(motion.h1)`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 200% 200%;
-    animation: gradientShift 3s ease-in-out infinite;
-    will-change: background-position;
     text-shadow: 0 0 30px rgba(238, 47, 47, 0.3);
     position: relative;
     text-align: center;
     max-width: 100%;
-    hyphens: auto;
+    hyphens: none;
     font-display: swap;
     will-change: transform;
     display: block;
@@ -294,7 +290,8 @@ const HeroTitle = styled(motion.h1)`
     line-height: 1.1;
     margin-bottom: 2rem;
     letter-spacing: -0.02em;
-    word-break: break-word;
+    word-break: keep-all;
+    white-space: pre-line;
     background: linear-gradient(
       135deg,
       #ffffff 0%,
@@ -306,13 +303,11 @@ const HeroTitle = styled(motion.h1)`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 200% 200%;
-    animation: gradientShift 3s ease-in-out infinite;
-    will-change: background-position;
     text-shadow: 0 0 30px rgba(238, 47, 47, 0.3);
     position: relative;
     text-align: center;
     max-width: 100%;
-    hyphens: auto;
+    hyphens: none;
     font-display: swap;
     will-change: transform;
     display: block;
@@ -571,54 +566,89 @@ const Hero = memo(() => {
     }
   }, []);
 
+  const bg = heroBgAsset || getSectionBackground("hero");
+
+  const titleText =
+    "WE SPECIALIZE IN INFLUENCER MARKETING THAT DELIVERS MEASURABLE IMPACT";
+
+  // Fixed 3-line title for all screens
+  const formattedTitle =
+    "WE SPECIALIZE ININFLUENCER\nMARKETING THAT DELIVERS\nMEASURABLE IMPACT";
+
+  // Animation variants for Hero section
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        delayChildren: 0.1,
-        staggerChildren: 0.1,
+        duration: 0.8,
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 10, opacity: 0 },
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.3,
+        duration: 0.6,
         ease: "easeOut",
       },
     },
   };
 
-  const bg = heroBgAsset || getSectionBackground("hero");
-
-  const titleText =
-    "WE SPECIALIZE IN INFLUENCER MARKETING THAT DELIVERS MEASURABLE IMPACT";
-  const chars = Array.from(titleText);
-
-  const titleContainer = {
-    hidden: { opacity: 1 },
+  const titleVariants = {
+    hidden: { y: 50, opacity: 0 },
     visible: {
+      y: 0,
       opacity: 1,
-      transition: { staggerChildren: 0.02 },
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+        delay: 0.2,
+      },
     },
   };
 
-  const charVariants = {
-    hidden: { opacity: 0, y: 10 },
+  const subtitleVariants = {
+    hidden: { y: 30, opacity: 0 },
     visible: {
-      opacity: 1,
       y: 0,
-      transition: { duration: 0.2, ease: "easeOut" },
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+        delay: 0.4,
+      },
+    },
+  };
+
+  const buttonVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+        delay: 0.6,
+      },
     },
   };
 
   return (
-    <HeroContainer $bg={bg} className="hero-container" role="banner">
+    <HeroContainer
+      $bg={bg}
+      className="hero-container"
+      role="banner"
+      as={motion.section}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
       <HeroBackground />
 
       <motion.div
@@ -629,33 +659,47 @@ const Hero = memo(() => {
         <HeroContent>
           <HeroTitle
             className="hero-title"
-            variants={titleContainer}
+            aria-label={formattedTitle}
+            as={motion.h1}
+            variants={titleVariants}
             initial="hidden"
             animate="visible"
-            aria-label={titleText}
           >
-            {showContent
-              ? chars.map((ch, i) => (
-                  <motion.span key={i} variants={charVariants}>
-                    {ch === " " ? "\u00A0" : ch}
-                  </motion.span>
-                ))
-              : titleText}
+            {formattedTitle.split("\n").map((line, index) => (
+              <div key={index}>
+                {line}
+                {index < formattedTitle.split("\n").length - 1 && <br />}
+              </div>
+            ))}
           </HeroTitle>
 
-          <HeroSubtitle className="hero-subtitle" variants={itemVariants}>
+          <HeroSubtitle
+            className="hero-subtitle"
+            as={motion.p}
+            variants={subtitleVariants}
+            initial="hidden"
+            animate="visible"
+          >
             CONNECTING BRANDS, GOVERNMENTS, AND ORGANIZATIONS WITH THE RIGHT
             VOICES ACROSS THE MENA REGION AND BEYOND
           </HeroSubtitle>
 
           <HeroButtons
-            variants={itemVariants}
+            as={motion.div}
+            variants={buttonVariants}
+            initial="hidden"
+            animate="visible"
             role="group"
             aria-label="Call to action buttons"
           >
             <HeroButton
               className="primary"
-              whileHover={{ scale: 1.05 }}
+              as={motion.button}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 10px 30px rgba(238, 47, 47, 0.3)",
+                transition: { duration: 0.2 },
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={handleGetInTouch}
               aria-label="Get in touch with LA Marketing"
@@ -664,7 +708,12 @@ const Hero = memo(() => {
             </HeroButton>
             <HeroButton
               className="secondary"
-              whileHover={{ scale: 1.05 }}
+              as={motion.button}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 10px 30px rgba(255, 255, 255, 0.2)",
+                transition: { duration: 0.2 },
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={handleExploreWork}
               aria-label="Explore our digital marketing services"
@@ -676,10 +725,26 @@ const Hero = memo(() => {
       </motion.div>
 
       <ScrollDownButton
+        as={motion.button}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.6 }}
-        whileHover={{ scale: 1.1 }}
+        animate={{
+          opacity: 1,
+          y: 0,
+          y: [0, -10, 0],
+        }}
+        transition={{
+          delay: 2,
+          duration: 0.6,
+          y: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          },
+        }}
+        whileHover={{
+          scale: 1.1,
+          boxShadow: "0 5px 20px rgba(238, 47, 47, 0.4)",
+        }}
         whileTap={{ scale: 0.9 }}
         onClick={handleScrollDown}
         aria-label="Scroll down to services section"

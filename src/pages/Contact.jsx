@@ -651,8 +651,6 @@ const Contact = memo(() => {
 
   const officeHours = useMemo(() => [
     { day: 'Sunday - Thursday', time: '9:00 AM - 6:00 PM' },
-    { day: 'Friday', time: 'Closed' },
-    { day: 'Saturday', time: '10:00 AM - 4:00 PM' }
   ], []);
 
   const containerVariants = {
