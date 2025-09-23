@@ -354,12 +354,12 @@ const InfluencerImage = styled.div`
   padding: 0;
 
   @media (max-width: 768px) {
-    height: 418px;
+    height: 320px;
     overflow: hidden;
   }
 
   @media (max-width: 480px) {
-    height: 550px;
+    height: 380px;
     overflow: hidden;
   }
 `;
@@ -397,11 +397,11 @@ const InfluencerContent = styled.div`
   padding: 3rem;
 
   @media (max-width: 768px) {
-    padding: 2.5rem;
+    padding: 1.5rem;
   }
 
   @media (max-width: 480px) {
-    padding: 2rem;
+    padding: 1rem;
   }
 `;
 
