@@ -9,6 +9,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import SEO from "../components/SEO";
 import { seoData } from "../utils/seoData";
+import Loading from "../components/Loading";
 
 // TikTok icon used in social links
 const TikTokIcon = ({ size = 16 }) => (
@@ -450,60 +451,99 @@ const SocialLink = styled.a`
   }
 `;
 
+const MobileLoadingIndicator = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  color: #ee2f2f;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ee2f2f;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 const Influencers = memo(() => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [visibleCards, setVisibleCards] = useState(1);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // Detect mobile with error handling
+  const { items, filters } = useInfluencerCatalog();
+
+  // Simple mobile detection and loading state
   React.useEffect(() => {
-    try {
-      const isMobileDevice =
-        window.innerWidth <= 768 ||
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent
-        );
+    const isMobileDevice = window.innerWidth <= 768;
+    setIsMobile(isMobileDevice);
 
-      setIsMobile(isMobileDevice);
+    // Progressive card loading for mobile performance
+    if (isMobileDevice) {
+      // Show first card immediately
+      setVisibleCards(1);
 
-      // Mobile-specific optimizations
-      if (isMobileDevice) {
-        // Disable problematic mobile behaviors
-        document.body.style.touchAction = "manipulation";
-        document.body.style.webkitTouchCallout = "none";
-        document.body.style.webkitUserSelect = "none";
-        document.body.style.userSelect = "none";
-
-        // Prevent zoom and other touch issues
-        const preventDefault = (e) => {
-          if (e.touches.length > 1) {
-            e.preventDefault();
+      // Gradually show more cards during loading
+      const cardInterval = setInterval(() => {
+        setVisibleCards((prev) => {
+          if (prev >= 6) {
+            // Show up to 6 cards during loading
+            clearInterval(cardInterval);
+            return prev;
           }
-        };
-
-        document.addEventListener("touchstart", preventDefault, {
-          passive: false,
+          return prev + 1;
         });
-        document.addEventListener("touchmove", preventDefault, {
-          passive: false,
-        });
+      }, 200);
 
-        return () => {
-          document.removeEventListener("touchstart", preventDefault);
-          document.removeEventListener("touchmove", preventDefault);
-        };
-      }
-    } catch (error) {
-      console.error("Mobile detection error:", error);
-      // Fallback to mobile if detection fails
-      setIsMobile(true);
+      // Complete loading after showing initial cards
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        clearInterval(cardInterval);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+        clearInterval(cardInterval);
+      };
+    } else {
+      // Desktop: normal loading
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 800);
+      return () => clearTimeout(timer);
     }
   }, []);
-  const { items, filters } = useInfluencerCatalog();
+
+  // Set loading to false when influencers are loaded
+  React.useEffect(() => {
+    if (items && items.length > 0) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [items]);
 
   const filteredInfluencers = useMemo(() => {
     const byCategory =
@@ -511,13 +551,22 @@ const Influencers = memo(() => {
         ? items
         : items.filter((item) => item.category === activeFilter);
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return byCategory;
-    return byCategory.filter((item) => {
-      const name = (item.name || "").toLowerCase();
-      const type = (item.type || "").toLowerCase();
-      return name.includes(q) || type.includes(q);
-    });
-  }, [activeFilter, items, searchQuery]);
+    let result = byCategory;
+    if (q) {
+      result = byCategory.filter((item) => {
+        const name = (item.name || "").toLowerCase();
+        const type = (item.type || "").toLowerCase();
+        return name.includes(q) || type.includes(q);
+      });
+    }
+
+    // During loading on mobile, only show visible cards
+    if (isLoading && isMobile) {
+      return result.slice(0, visibleCards);
+    }
+
+    return result;
+  }, [activeFilter, items, searchQuery, isLoading, isMobile, visibleCards]);
 
   const getSocialIcon = (platform) => {
     switch (platform) {
@@ -582,205 +631,110 @@ const Influencers = memo(() => {
     },
   };
 
-  return (
-    <>
-      <SEO {...seoData.influencers} />
-      <InfluencersContainer>
-        <ContentSection id="content">
-          <Container ref={ref}>
-            <HeroSection
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6 }}
-            >
-              <HeroTitle>LA Marketing Influencer Network</HeroTitle>
-              <HeroSubtitle>
-                We're proud to work with amazing brands, influencers, and
-                startups across the Middle East.
-              </HeroSubtitle>
-            </HeroSection>
+  // Show loading state until content is ready (but not on mobile with visible cards)
+  if (isLoading && !(isMobile && visibleCards > 0)) {
+    return <Loading message="Loading Influencers..." />;
+  }
 
-            <FilterTabs>
-              {filters.map((filter) => (
-                <FilterTab
-                  key={filter.key}
-                  $active={activeFilter === filter.key}
-                  className={activeFilter === filter.key ? "active" : ""}
-                  onClick={() => setActiveFilter(filter.key)}
-                >
-                  {formatFilterLabel(filter.label)}
-                </FilterTab>
-              ))}
-            </FilterTabs>
+  try {
+    return (
+      <>
+        <SEO {...seoData.influencers} />
+        <InfluencersContainer>
+          <ContentSection id="content">
+            <Container ref={ref}>
+              <HeroSection
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <HeroTitle>LA Marketing Influencer Network</HeroTitle>
+                <HeroSubtitle>
+                  We're proud to work with amazing brands, influencers, and
+                  startups across the Middle East.
+                </HeroSubtitle>
+              </HeroSection>
 
-            <SearchBarWrapper>
-              <SearchInput
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search influencers..."
-                aria-label="Search influencers"
-              />
-            </SearchBarWrapper>
+              <FilterTabs>
+                {filters.map((filter) => (
+                  <FilterTab
+                    key={filter.key}
+                    $active={activeFilter === filter.key}
+                    className={activeFilter === filter.key ? "active" : ""}
+                    onClick={() => setActiveFilter(filter.key)}
+                  >
+                    {formatFilterLabel(filter.label)}
+                  </FilterTab>
+                ))}
+              </FilterTabs>
 
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={inView ? "visible" : "hidden"}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeFilter}
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                >
-                  {filteredInfluencers.length === 0 ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        color: "#bbb",
-                        padding: "2rem 1rem",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Search size={18} color="#888" />
-                      <span>No influencers found</span>
-                    </div>
-                  ) : isMobile ? (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(300px, 1fr))",
-                        gap: "2rem",
-                        padding: "2rem 0",
-                      }}
-                    >
-                      {filteredInfluencers.map((client) => (
-                        <InfluencerCard
-                          key={client.id}
-                          variants={itemVariants}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                        >
-                          <InfluencerImage>
-                            {client.photo ? (
-                              <InfluencerPhoto
-                                src={client.photo}
-                                alt={client.name}
-                                loading="lazy"
-                                decoding="async"
-                                onLoad={(e) => {
-                                  e.target.style.opacity = "1";
-                                }}
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              client.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                            )}
-                          </InfluencerImage>
-                          <InfluencerContent>
-                            <InfluencerName>{client.name}</InfluencerName>
-                            <InfluencerCategory>
-                              {client.type}
-                            </InfluencerCategory>
+              <SearchBarWrapper>
+                <SearchInput
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search influencers..."
+                  aria-label="Search influencers"
+                />
+              </SearchBarWrapper>
 
-                            <SocialLinks>
-                              {(() => {
-                                const slug = slugifyName(client.name);
-                                const igUrl = slug
-                                  ? `https://www.instagram.com/${slug}`
-                                  : "#";
-                                const ttUrl = slug
-                                  ? `https://www.tiktok.com/@${slug}`
-                                  : "#";
-                                return (
-                                  <>
-                                    <SocialLink
-                                      target="_blank"
-                                      href={igUrl}
-                                      aria-label="Instagram"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (igUrl !== "#") {
-                                          window.open(
-                                            igUrl,
-                                            "_blank",
-                                            "noopener,noreferrer"
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      <Instagram size={16} />
-                                    </SocialLink>
-                                    <SocialLink
-                                      target="_blank"
-                                      href={ttUrl}
-                                      aria-label="TikTok"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (ttUrl !== "#") {
-                                          window.open(
-                                            ttUrl,
-                                            "_blank",
-                                            "noopener,noreferrer"
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      <TikTokIcon size={16} />
-                                    </SocialLink>
-                                  </>
-                                );
-                              })()}
-                            </SocialLinks>
-                          </InfluencerContent>
-                        </InfluencerCard>
-                      ))}
-                    </div>
-                  ) : (
-                    <SwiperContainer>
-                      <Swiper
-                        modules={[Navigation]}
-                        spaceBetween={20}
-                        slidesPerView={1}
-                        navigation={true}
-                        pagination={false}
-                        autoplay={false}
-                        loop={false}
-                        breakpoints={{
-                          768: {
-                            slidesPerView: 2,
-                            spaceBetween: 30,
-                          },
-                          1024: {
-                            slidesPerView: 3,
-                            spaceBetween: 40,
-                          },
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeFilter}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                  >
+                    {filteredInfluencers.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          color: "#bbb",
+                          padding: "2rem 1rem",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Search size={18} color="#888" />
+                        <span>No influencers found</span>
+                      </div>
+                    ) : isMobile ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "1.5rem",
+                          padding: "1rem 0",
+                          maxWidth: "100%",
+                          width: "100%",
                         }}
                       >
                         {filteredInfluencers.map((client) => (
-                          <SwiperSlide key={client.id}>
+                          <div
+                            key={client.id}
+                            style={{
+                              width: "100%",
+                              maxWidth: "100%",
+                              margin: "0 auto",
+                            }}
+                          >
                             <InfluencerCard
-                              variants={itemVariants}
-                              whileHover={{ scale: 1.02 }}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
+                              }}
+                              style={{
+                                width: "100%",
+                                maxWidth: "100%",
+                                margin: "0",
                               }}
                             >
                               <InfluencerImage>
@@ -809,6 +763,7 @@ const Influencers = memo(() => {
                                 <InfluencerCategory>
                                   {client.type}
                                 </InfluencerCategory>
+
                                 <SocialLinks>
                                   {(() => {
                                     const slug = slugifyName(client.name);
@@ -862,19 +817,161 @@ const Influencers = memo(() => {
                                 </SocialLinks>
                               </InfluencerContent>
                             </InfluencerCard>
-                          </SwiperSlide>
+                          </div>
                         ))}
-                      </Swiper>
-                    </SwiperContainer>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-          </Container>
-        </ContentSection>
-      </InfluencersContainer>
-    </>
-  );
+                        {isLoading && isMobile && (
+                          <MobileLoadingIndicator>
+                            Loading more influencers...
+                          </MobileLoadingIndicator>
+                        )}
+                      </div>
+                    ) : (
+                      <SwiperContainer>
+                        <Swiper
+                          modules={[Navigation]}
+                          spaceBetween={20}
+                          slidesPerView={1}
+                          navigation={true}
+                          pagination={false}
+                          autoplay={false}
+                          loop={false}
+                          breakpoints={{
+                            768: {
+                              slidesPerView: 2,
+                              spaceBetween: 30,
+                            },
+                            1024: {
+                              slidesPerView: 3,
+                              spaceBetween: 40,
+                            },
+                          }}
+                        >
+                          {filteredInfluencers.map((client) => (
+                            <SwiperSlide key={client.id}>
+                              <InfluencerCard
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02 }}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <InfluencerImage>
+                                  {client.photo ? (
+                                    <InfluencerPhoto
+                                      src={client.photo}
+                                      alt={client.name}
+                                      loading="lazy"
+                                      decoding="async"
+                                      onLoad={(e) => {
+                                        e.target.style.opacity = "1";
+                                      }}
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    client.name
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                  )}
+                                </InfluencerImage>
+                                <InfluencerContent>
+                                  <InfluencerName>{client.name}</InfluencerName>
+                                  <InfluencerCategory>
+                                    {client.type}
+                                  </InfluencerCategory>
+                                  <SocialLinks>
+                                    {(() => {
+                                      const slug = slugifyName(client.name);
+                                      const igUrl = slug
+                                        ? `https://www.instagram.com/${slug}`
+                                        : "#";
+                                      const ttUrl = slug
+                                        ? `https://www.tiktok.com/@${slug}`
+                                        : "#";
+                                      return (
+                                        <>
+                                          <SocialLink
+                                            target="_blank"
+                                            href={igUrl}
+                                            aria-label="Instagram"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              if (igUrl !== "#") {
+                                                window.open(
+                                                  igUrl,
+                                                  "_blank",
+                                                  "noopener,noreferrer"
+                                                );
+                                              }
+                                            }}
+                                          >
+                                            <Instagram size={16} />
+                                          </SocialLink>
+                                          <SocialLink
+                                            target="_blank"
+                                            href={ttUrl}
+                                            aria-label="TikTok"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              if (ttUrl !== "#") {
+                                                window.open(
+                                                  ttUrl,
+                                                  "_blank",
+                                                  "noopener,noreferrer"
+                                                );
+                                              }
+                                            }}
+                                          >
+                                            <TikTokIcon size={16} />
+                                          </SocialLink>
+                                        </>
+                                      );
+                                    })()}
+                                  </SocialLinks>
+                                </InfluencerContent>
+                              </InfluencerCard>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      </SwiperContainer>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+            </Container>
+          </ContentSection>
+        </InfluencersContainer>
+      </>
+    );
+  } catch (error) {
+    console.error("Influencers component error:", error);
+    return (
+      <>
+        <SEO {...seoData.influencers} />
+        <InfluencersContainer>
+          <ContentSection>
+            <Container>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "4rem 0",
+                  color: "#ffffff",
+                  fontSize: "1.2rem",
+                }}
+              >
+                Something went wrong. Please refresh the page.
+              </div>
+            </Container>
+          </ContentSection>
+        </InfluencersContainer>
+      </>
+    );
+  }
 });
 
 export default Influencers;
