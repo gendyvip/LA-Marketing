@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: "./", // Use relative paths for cPanel deployment
   build: {
     target: "es2015",
     minify: "terser",
@@ -23,6 +24,9 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
+    // Ensure proper asset handling for cPanel
+    assetsDir: "assets",
+    outDir: "dist",
   },
   server: {
     host: true,

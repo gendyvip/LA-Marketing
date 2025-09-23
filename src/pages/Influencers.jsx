@@ -453,79 +453,55 @@ const SocialLink = styled.a`
 const Influencers = memo(() => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isIOS, setIsIOS] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [swiperError, setSwiperError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // Detect iOS and mobile
+  // Detect mobile with error handling
   React.useEffect(() => {
-    const isIOSDevice =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isMobileDevice =
-      window.innerWidth <= 768 ||
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-    setIsIOS(isIOSDevice);
-    setIsMobile(isMobileDevice);
+    try {
+      const isMobileDevice =
+        window.innerWidth <= 768 ||
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
 
-    // Add mobile-specific optimizations for Vercel
-    if (isMobileDevice) {
-      // Disable hover effects on mobile
-      document.body.style.touchAction = "manipulation";
-      // Prevent zoom on double tap
-      document.addEventListener(
-        "touchstart",
-        (e) => {
+      setIsMobile(isMobileDevice);
+
+      // Mobile-specific optimizations
+      if (isMobileDevice) {
+        // Disable problematic mobile behaviors
+        document.body.style.touchAction = "manipulation";
+        document.body.style.webkitTouchCallout = "none";
+        document.body.style.webkitUserSelect = "none";
+        document.body.style.userSelect = "none";
+
+        // Prevent zoom and other touch issues
+        const preventDefault = (e) => {
           if (e.touches.length > 1) {
             e.preventDefault();
           }
-        },
-        { passive: false }
-      );
+        };
+
+        document.addEventListener("touchstart", preventDefault, {
+          passive: false,
+        });
+        document.addEventListener("touchmove", preventDefault, {
+          passive: false,
+        });
+
+        return () => {
+          document.removeEventListener("touchstart", preventDefault);
+          document.removeEventListener("touchmove", preventDefault);
+        };
+      }
+    } catch (error) {
+      console.error("Mobile detection error:", error);
+      // Fallback to mobile if detection fails
+      setIsMobile(true);
     }
-
-    // Set loading to false after component mounts
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Reset swiper error when filters change
-  React.useEffect(() => {
-    setSwiperError(false);
-  }, [activeFilter, searchQuery]);
-
-  // Add error boundary for mobile
-  React.useEffect(() => {
-    const handleError = (error) => {
-      console.error("Mobile error caught:", error);
-      setSwiperError(true);
-    };
-
-    const handleUnhandledRejection = (event) => {
-      console.error("Unhandled promise rejection:", event.reason);
-      setSwiperError(true);
-      event.preventDefault();
-    };
-
-    window.addEventListener("error", handleError);
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-
-    return () => {
-      window.removeEventListener("error", handleError);
-      window.removeEventListener(
-        "unhandledrejection",
-        handleUnhandledRejection
-      );
-    };
   }, []);
 
   const { items, filters } = useInfluencerCatalog();
@@ -586,46 +562,26 @@ const Influencers = memo(() => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: isMobile ? 0.05 : 0.1,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: isMobile ? 10 : 30, opacity: 0 },
+    hidden: {
+      opacity: 0,
+      y: 10,
+    },
     visible: {
-      y: 0,
       opacity: 1,
+      y: 0,
       transition: {
-        duration: isMobile ? 0.3 : 0.6,
+        duration: 0.3,
         ease: "easeOut",
       },
     },
   };
-
-  if (isLoading) {
-    return (
-      <>
-        <SEO {...seoData.influencers} />
-        <InfluencersContainer>
-          <ContentSection>
-            <Container>
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "4rem 0",
-                  color: "#ffffff",
-                  fontSize: "1.2rem",
-                }}
-              >
-                Loading influencers...
-              </div>
-            </Container>
-          </ContentSection>
-        </InfluencersContainer>
-      </>
-    );
-  }
 
   return (
     <>
@@ -696,7 +652,7 @@ const Influencers = memo(() => {
                       <Search size={18} color="#888" />
                       <span>No influencers found</span>
                     </div>
-                  ) : swiperError ? (
+                  ) : isMobile ? (
                     <div
                       style={{
                         display: "grid",
@@ -710,7 +666,6 @@ const Influencers = memo(() => {
                         <InfluencerCard
                           key={client.id}
                           variants={itemVariants}
-                          whileHover={isMobile ? {} : { scale: 1.02 }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -742,6 +697,7 @@ const Influencers = memo(() => {
                             <InfluencerCategory>
                               {client.type}
                             </InfluencerCategory>
+
                             <SocialLinks>
                               {(() => {
                                 const slug = slugifyName(client.name);
@@ -760,18 +716,11 @@ const Influencers = memo(() => {
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        try {
-                                          if (igUrl !== "#") {
-                                            window.open(
-                                              igUrl,
-                                              "_blank",
-                                              "noopener,noreferrer"
-                                            );
-                                          }
-                                        } catch (error) {
-                                          console.error(
-                                            "Error opening Instagram:",
-                                            error
+                                        if (igUrl !== "#") {
+                                          window.open(
+                                            igUrl,
+                                            "_blank",
+                                            "noopener,noreferrer"
                                           );
                                         }
                                       }}
@@ -785,18 +734,11 @@ const Influencers = memo(() => {
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        try {
-                                          if (ttUrl !== "#") {
-                                            window.open(
-                                              ttUrl,
-                                              "_blank",
-                                              "noopener,noreferrer"
-                                            );
-                                          }
-                                        } catch (error) {
-                                          console.error(
-                                            "Error opening TikTok:",
-                                            error
+                                        if (ttUrl !== "#") {
+                                          window.open(
+                                            ttUrl,
+                                            "_blank",
+                                            "noopener,noreferrer"
                                           );
                                         }
                                       }}
@@ -813,273 +755,117 @@ const Influencers = memo(() => {
                     </div>
                   ) : (
                     <SwiperContainer>
-                      {(() => {
-                        try {
-                          return (
-                            <Swiper
-                              modules={[Navigation]}
-                              spaceBetween={20}
-                              slidesPerView={1}
-                              navigation={true}
-                              pagination={false}
-                              autoplay={false}
-                              touchRatio={1}
-                              simulateTouch={true}
-                              allowTouchMove={true}
-                              breakpoints={{
-                                320: {
-                                  slidesPerView: 1,
-                                  spaceBetween: 20,
-                                },
-                                768: {
-                                  slidesPerView: 2,
-                                  spaceBetween: 30,
-                                },
-                                1024: {
-                                  slidesPerView: 3,
-                                  spaceBetween: 40,
-                                },
-                              }}
-                              loop={false}
-                              onError={() => {
-                                setSwiperError(true);
-                              }}
-                              onInit={() => {
-                                setSwiperError(false);
+                      <Swiper
+                        modules={[Navigation]}
+                        spaceBetween={20}
+                        slidesPerView={1}
+                        navigation={true}
+                        pagination={false}
+                        autoplay={false}
+                        loop={false}
+                        breakpoints={{
+                          768: {
+                            slidesPerView: 2,
+                            spaceBetween: 30,
+                          },
+                          1024: {
+                            slidesPerView: 3,
+                            spaceBetween: 40,
+                          },
+                        }}
+                      >
+                        {filteredInfluencers.map((client) => (
+                          <SwiperSlide key={client.id}>
+                            <InfluencerCard
+                              variants={itemVariants}
+                              whileHover={{ scale: 1.02 }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                               }}
                             >
-                              {filteredInfluencers.map((client) => (
-                                <SwiperSlide key={client.id}>
-                                  <InfluencerCard
-                                    variants={itemVariants}
-                                    whileHover={isMobile ? {} : { scale: 1.02 }}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
+                              <InfluencerImage>
+                                {client.photo ? (
+                                  <InfluencerPhoto
+                                    src={client.photo}
+                                    alt={client.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                    onLoad={(e) => {
+                                      e.target.style.opacity = "1";
                                     }}
-                                  >
-                                    <InfluencerImage>
-                                      {client.photo ? (
-                                        <InfluencerPhoto
-                                          src={client.photo}
-                                          alt={client.name}
-                                          loading="lazy"
-                                          decoding="async"
-                                          onLoad={(e) => {
-                                            e.target.style.opacity = "1";
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                    }}
+                                  />
+                                ) : (
+                                  client.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                )}
+                              </InfluencerImage>
+                              <InfluencerContent>
+                                <InfluencerName>{client.name}</InfluencerName>
+                                <InfluencerCategory>
+                                  {client.type}
+                                </InfluencerCategory>
+                                <SocialLinks>
+                                  {(() => {
+                                    const slug = slugifyName(client.name);
+                                    const igUrl = slug
+                                      ? `https://www.instagram.com/${slug}`
+                                      : "#";
+                                    const ttUrl = slug
+                                      ? `https://www.tiktok.com/@${slug}`
+                                      : "#";
+                                    return (
+                                      <>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={igUrl}
+                                          aria-label="Instagram"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (igUrl !== "#") {
+                                              window.open(
+                                                igUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
                                           }}
-                                          onError={(e) => {
-                                            e.target.style.display = "none";
+                                        >
+                                          <Instagram size={16} />
+                                        </SocialLink>
+                                        <SocialLink
+                                          target="_blank"
+                                          href={ttUrl}
+                                          aria-label="TikTok"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (ttUrl !== "#") {
+                                              window.open(
+                                                ttUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
                                           }}
-                                        />
-                                      ) : (
-                                        client.name
-                                          .split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                      )}
-                                    </InfluencerImage>
-                                    <InfluencerContent>
-                                      <InfluencerName>
-                                        {client.name}
-                                      </InfluencerName>
-                                      <InfluencerCategory>
-                                        {client.type}
-                                      </InfluencerCategory>
-
-                                      <SocialLinks>
-                                        {(() => {
-                                          const slug = slugifyName(client.name);
-                                          const igUrl = slug
-                                            ? `https://www.instagram.com/${slug}`
-                                            : "#";
-                                          const ttUrl = slug
-                                            ? `https://www.tiktok.com/@${slug}`
-                                            : "#";
-                                          return (
-                                            <>
-                                              <SocialLink
-                                                target="_blank"
-                                                href={igUrl}
-                                                aria-label="Instagram"
-                                                onClick={(e) => {
-                                                  e.preventDefault();
-                                                  e.stopPropagation();
-                                                  try {
-                                                    if (igUrl !== "#") {
-                                                      window.open(
-                                                        igUrl,
-                                                        "_blank",
-                                                        "noopener,noreferrer"
-                                                      );
-                                                    }
-                                                  } catch (error) {
-                                                    console.error(
-                                                      "Error opening Instagram:",
-                                                      error
-                                                    );
-                                                  }
-                                                }}
-                                              >
-                                                <Instagram size={16} />
-                                              </SocialLink>
-                                              <SocialLink
-                                                target="_blank"
-                                                href={ttUrl}
-                                                aria-label="TikTok"
-                                                onClick={(e) => {
-                                                  e.preventDefault();
-                                                  e.stopPropagation();
-                                                  try {
-                                                    if (ttUrl !== "#") {
-                                                      window.open(
-                                                        ttUrl,
-                                                        "_blank",
-                                                        "noopener,noreferrer"
-                                                      );
-                                                    }
-                                                  } catch (error) {
-                                                    console.error(
-                                                      "Error opening TikTok:",
-                                                      error
-                                                    );
-                                                  }
-                                                }}
-                                              >
-                                                <TikTokIcon size={16} />
-                                              </SocialLink>
-                                            </>
-                                          );
-                                        })()}
-                                      </SocialLinks>
-                                    </InfluencerContent>
-                                  </InfluencerCard>
-                                </SwiperSlide>
-                              ))}
-                            </Swiper>
-                          );
-                        } catch (error) {
-                          console.error("Swiper render error:", error);
-                          return (
-                            <div
-                              style={{
-                                display: "grid",
-                                gridTemplateColumns:
-                                  "repeat(auto-fit, minmax(300px, 1fr))",
-                                gap: "2rem",
-                                padding: "2rem 0",
-                              }}
-                            >
-                              {filteredInfluencers.map((client) => (
-                                <InfluencerCard
-                                  key={client.id}
-                                  variants={itemVariants}
-                                  whileHover={isMobile ? {} : { scale: 1.02 }}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                >
-                                  <InfluencerImage>
-                                    {client.photo ? (
-                                      <InfluencerPhoto
-                                        src={client.photo}
-                                        alt={client.name}
-                                        loading="lazy"
-                                        decoding="async"
-                                        onLoad={(e) => {
-                                          e.target.style.opacity = "1";
-                                        }}
-                                        onError={(e) => {
-                                          e.target.style.display = "none";
-                                        }}
-                                      />
-                                    ) : (
-                                      client.name
-                                        .split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                    )}
-                                  </InfluencerImage>
-                                  <InfluencerContent>
-                                    <InfluencerName>
-                                      {client.name}
-                                    </InfluencerName>
-                                    <InfluencerCategory>
-                                      {client.type}
-                                    </InfluencerCategory>
-                                    <SocialLinks>
-                                      {(() => {
-                                        const slug = slugifyName(client.name);
-                                        const igUrl = slug
-                                          ? `https://www.instagram.com/${slug}`
-                                          : "#";
-                                        const ttUrl = slug
-                                          ? `https://www.tiktok.com/@${slug}`
-                                          : "#";
-                                        return (
-                                          <>
-                                            <SocialLink
-                                              target="_blank"
-                                              href={igUrl}
-                                              aria-label="Instagram"
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                try {
-                                                  if (igUrl !== "#") {
-                                                    window.open(
-                                                      igUrl,
-                                                      "_blank",
-                                                      "noopener,noreferrer"
-                                                    );
-                                                  }
-                                                } catch (error) {
-                                                  console.error(
-                                                    "Error opening Instagram:",
-                                                    error
-                                                  );
-                                                }
-                                              }}
-                                            >
-                                              <Instagram size={16} />
-                                            </SocialLink>
-                                            <SocialLink
-                                              target="_blank"
-                                              href={ttUrl}
-                                              aria-label="TikTok"
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                try {
-                                                  if (ttUrl !== "#") {
-                                                    window.open(
-                                                      ttUrl,
-                                                      "_blank",
-                                                      "noopener,noreferrer"
-                                                    );
-                                                  }
-                                                } catch (error) {
-                                                  console.error(
-                                                    "Error opening TikTok:",
-                                                    error
-                                                  );
-                                                }
-                                              }}
-                                            >
-                                              <TikTokIcon size={16} />
-                                            </SocialLink>
-                                          </>
-                                        );
-                                      })()}
-                                    </SocialLinks>
-                                  </InfluencerContent>
-                                </InfluencerCard>
-                              ))}
-                            </div>
-                          );
-                        }
-                      })()}
+                                        >
+                                          <TikTokIcon size={16} />
+                                        </SocialLink>
+                                      </>
+                                    );
+                                  })()}
+                                </SocialLinks>
+                              </InfluencerContent>
+                            </InfluencerCard>
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
                     </SwiperContainer>
                   )}
                 </motion.div>
