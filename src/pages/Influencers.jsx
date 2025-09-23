@@ -100,7 +100,7 @@ const ContentSection = styled.section`
   position: relative;
   overflow: hidden;
   margin-top: 0;
-  
+
   &::before {
     content: "";
     position: absolute;
@@ -147,7 +147,7 @@ const HeroTitle = styled.h1`
   letter-spacing: -0.02em;
   position: relative;
   text-align: center;
-  
+
   &::after {
     content: "";
     position: absolute;
@@ -159,7 +159,7 @@ const HeroTitle = styled.h1`
     background: linear-gradient(90deg, #ee2f2f, #c41e1e);
     border-radius: 2px;
   }
-  
+
   @media (max-width: 768px) {
     font-size: 2.5rem;
   }
@@ -221,13 +221,13 @@ const FilterTab = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     border-color: #ee2f2f;
     color: #ffffff;
     background: #ee2f2f;
   }
-  
+
   &.active {
     border-color: #ee2f2f;
   }
@@ -238,7 +238,7 @@ const SwiperContainer = styled.div`
   padding: 2rem 0;
   -webkit-overflow-scrolling: touch;
   overflow: hidden;
-  
+
   .swiper {
     width: 100%;
     height: 100%;
@@ -246,7 +246,7 @@ const SwiperContainer = styled.div`
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
-  
+
   .swiper-slide {
     display: flex;
     justify-content: center;
@@ -256,21 +256,21 @@ const SwiperContainer = styled.div`
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
-  
+
   @media (max-width: 768px) {
     padding: 1rem 0;
-    
+
     .swiper {
       padding: 1rem 0;
       width: 100%;
     }
-    
+
     .swiper-slide {
       width: 100%;
       max-width: 100%;
     }
   }
-  
+
   .swiper-button-next,
   .swiper-button-prev {
     color: #ee2f2f;
@@ -281,7 +281,7 @@ const SwiperContainer = styled.div`
     margin-top: -18px;
     box-sizing: content-box;
     padding: 8px;
-    
+
     &:after {
       font-size: 12px;
     }
@@ -293,16 +293,16 @@ const SwiperContainer = styled.div`
   .swiper-button-prev {
     left: 12px;
   }
-  
+
   .swiper-pagination {
     margin-top: 2rem;
     position: relative;
   }
-  
+
   .swiper-pagination-bullet {
     background: #ee2f2f;
     opacity: 0.5;
-    
+
     &.swiper-pagination-bullet-active {
       opacity: 1;
     }
@@ -323,13 +323,13 @@ const InfluencerCard = styled(motion.div)`
   max-width: 450px;
   margin: 0 auto;
   cursor: default;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(238, 47, 47, 0.2);
     border-color: #ee2f2f;
   }
-  
+
   @media (max-width: 768px) {
     max-width: 100%;
     width: 100%;
@@ -351,12 +351,12 @@ const InfluencerImage = styled.div`
   width: 100%;
   margin: 0;
   padding: 0;
-  
+
   @media (max-width: 768px) {
     height: 418px;
     overflow: hidden;
   }
-  
+
   @media (max-width: 480px) {
     height: 550px;
     overflow: hidden;
@@ -379,11 +379,11 @@ const InfluencerPhoto = styled.img`
   transform: translate3d(0, 0, 0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  
+
   &[src] {
     opacity: 1;
   }
-  
+
   @media (max-width: 768px) {
     object-fit: cover;
     object-position: center;
@@ -394,11 +394,11 @@ const InfluencerPhoto = styled.img`
 
 const InfluencerContent = styled.div`
   padding: 3rem;
-  
+
   @media (max-width: 768px) {
     padding: 2.5rem;
   }
-  
+
   @media (max-width: 480px) {
     padding: 2rem;
   }
@@ -441,7 +441,7 @@ const SocialLink = styled.a`
   text-decoration: none;
   transition: all 0.3s ease;
   border: 1px solid #555555;
-  
+
   &:hover {
     background: #ee2f2f;
     color: #ffffff;
@@ -587,31 +587,31 @@ const Influencers = memo(() => {
       <SEO {...seoData.influencers} />
       <InfluencersContainer>
         <ContentSection id="content">
-        <Container ref={ref}>
-          <HeroSection
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6 }}
-          >
-            <HeroTitle>LA Marketing Influencer Network</HeroTitle>
-            <HeroSubtitle>
+          <Container ref={ref}>
+            <HeroSection
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6 }}
+            >
+              <HeroTitle>LA Marketing Influencer Network</HeroTitle>
+              <HeroSubtitle>
                 We're proud to work with amazing brands, influencers, and
                 startups across the Middle East.
-            </HeroSubtitle>
-          </HeroSection>
+              </HeroSubtitle>
+            </HeroSection>
 
-          <FilterTabs>
-            {filters.map((filter) => (
-              <FilterTab
-                key={filter.key}
-                $active={activeFilter === filter.key}
+            <FilterTabs>
+              {filters.map((filter) => (
+                <FilterTab
+                  key={filter.key}
+                  $active={activeFilter === filter.key}
                   className={activeFilter === filter.key ? "active" : ""}
-                onClick={() => setActiveFilter(filter.key)}
-              >
+                  onClick={() => setActiveFilter(filter.key)}
+                >
                   {formatFilterLabel(filter.label)}
-              </FilterTab>
-            ))}
-          </FilterTabs>
+                </FilterTab>
+              ))}
+            </FilterTabs>
 
             <SearchBarWrapper>
               <SearchInput
@@ -623,19 +623,19 @@ const Influencers = memo(() => {
               />
             </SearchBarWrapper>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeFilter}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFilter}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                >
                   {filteredInfluencers.length === 0 ? (
                     <div
                       style={{
@@ -660,8 +660,8 @@ const Influencers = memo(() => {
                         gap: "2rem",
                         padding: "2rem 0",
                       }}
-                  >
-                    {filteredInfluencers.map((client) => (
+                    >
+                      {filteredInfluencers.map((client) => (
                         <InfluencerCard
                           key={client.id}
                           variants={itemVariants}
@@ -672,8 +672,8 @@ const Influencers = memo(() => {
                         >
                           <InfluencerImage>
                             {client.photo ? (
-                              <InfluencerPhoto 
-                                src={client.photo} 
+                              <InfluencerPhoto
+                                src={client.photo}
                                 alt={client.name}
                                 loading="lazy"
                                 decoding="async"
@@ -696,7 +696,7 @@ const Influencers = memo(() => {
                             <InfluencerCategory>
                               {client.type}
                             </InfluencerCategory>
-                            
+
                             <SocialLinks>
                               {(() => {
                                 const slug = slugifyName(client.name);
@@ -743,7 +743,7 @@ const Influencers = memo(() => {
                                       }}
                                     >
                                       <TikTokIcon size={16} />
-                                </SocialLink>
+                                    </SocialLink>
                                   </>
                                 );
                               })()}
@@ -824,17 +824,17 @@ const Influencers = memo(() => {
                                           target="_blank"
                                           href={igUrl}
                                           aria-label="Instagram"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (igUrl !== "#") {
-                                    window.open(
-                                      igUrl,
-                                      "_blank",
-                                      "noopener,noreferrer"
-                                    );
-                                  }
-                                }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (igUrl !== "#") {
+                                              window.open(
+                                                igUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
+                                          }}
                                         >
                                           <Instagram size={16} />
                                         </SocialLink>
@@ -842,34 +842,34 @@ const Influencers = memo(() => {
                                           target="_blank"
                                           href={ttUrl}
                                           aria-label="TikTok"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (ttUrl !== "#") {
-                                    window.open(
-                                      ttUrl,
-                                      "_blank",
-                                      "noopener,noreferrer"
-                                    );
-                                  }
-                                }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (ttUrl !== "#") {
+                                              window.open(
+                                                ttUrl,
+                                                "_blank",
+                                                "noopener,noreferrer"
+                                              );
+                                            }
+                                          }}
                                         >
                                           <TikTokIcon size={16} />
                                         </SocialLink>
                                       </>
                                     );
                                   })()}
-                            </SocialLinks>
-                          </InfluencerContent>
-                        </InfluencerCard>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </SwiperContainer>
+                                </SocialLinks>
+                              </InfluencerContent>
+                            </InfluencerCard>
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </SwiperContainer>
                   )}
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
           </Container>
         </ContentSection>
       </InfluencersContainer>
